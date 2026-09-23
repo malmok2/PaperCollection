@@ -68,7 +68,9 @@ SOURCE_NOTE = "Crossref DOI created date; weekly window; OpenAlex countries/abst
 
 def connect(path=DB_PATH):
     path.parent.mkdir(parents=True, exist_ok=True)
-    if not path.exists() and DUMP_PATH.exists():
+    # The SQL dump in git is the source of truth; rebuild the local file whenever the dump is newer (e.g. after git pull).
+    if DUMP_PATH.exists() and (not path.exists() or DUMP_PATH.stat().st_mtime > path.stat().st_mtime):
+        path.unlink(missing_ok=True)
         restore = sqlite3.connect(path)
         restore.executescript(DUMP_PATH.read_text(encoding="utf-8"))
         restore.close()
