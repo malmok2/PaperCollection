@@ -48,6 +48,7 @@ GitHub 저장소 → **Settings → Secrets and variables → Actions** 에서 �
 대시보드는 `docs/index.html` 단일 파일(외부 라이브러리 없음)입니다.
 
 **GitHub Pages**(공개 저장소)로 게시합니다: <https://malmok2.github.io/PaperCollection/>
+- 이번 주 동향: `index.html` · 누적 DB 검색/필터/CSV: `database.html` · 전체 Excel: `nuclear-literature-database.xlsx`
 설정: Settings → Pages → Source: *GitHub Actions*. 매 실행 후 자동 재배포되며, 지난 회차는 `archive/날짜.html`에 남습니다.
 
 기존 `nuclear-literature-dashboard.ssrmin.chatgpt.site`는 Codex 전용 호스팅이라 여기서 갱신할 수 없습니다.
@@ -83,7 +84,7 @@ pipeline/                   파이프라인 코드 (run_weekly.py가 진입점)
 data/literature.sqlite      누적 DB (운영본; 백업은 git 이력)
 data/translations_ko.json   DOI별 한글 제목 캐시
 data/raw/                   회차별 수집 원자료
-docs/                       대시보드 (Pages 게시 대상)
+docs/                       공개 사이트: index.html(이번 주 동향), database.html(누적 DB 검색), archive/(회차별), Excel
 outputs/                    메일 HTML, Excel
 state/latest-run.json       마지막 실행 결과 / state/sent-runs.json 발송 이력
 legacy/codex-handoff/       이전 Codex 버전 코드와 인수인계 문서 (참고용)

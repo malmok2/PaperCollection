@@ -14,7 +14,9 @@ import traceback
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from . import build_dashboard, build_email, build_excel, collect, database, send_email, translate
+import shutil
+
+from . import build_dashboard, build_database_page, build_email, build_excel, collect, database, send_email, translate
 from .common import OUTPUT_DIR, SETTINGS, SITE_DIR, STATE_DIR, Period, raw_path, write_json
 
 KST = ZoneInfo("Asia/Seoul")
@@ -47,6 +49,13 @@ def collect_week(con, period):
     return found
 
 
+def with_nav(page, prefix):
+    """Add the site navigation (this week / cumulative DB / Excel) to a dashboard page."""
+    nav = build_database_page.nav_html("index", prefix)
+    page = page.replace("</style>", build_database_page.NAV_CSS + "</style>", 1)
+    return page.replace('<body><div class="wrap">', '<body><div class="wrap">' + nav, 1)
+
+
 def build_outputs(con, period):
     current = [database.as_record(r) for r in database.papers_between(con, period.start, period.end)]
     previous = [database.as_record(r) for r in database.papers_between(con, period.previous.start, period.previous.end)]
@@ -55,8 +64,8 @@ def build_outputs(con, period):
 
     dashboard_html = build_dashboard.render(period, current, previous, cumulative, len(payload["runs"]))
     (SITE_DIR / "archive").mkdir(parents=True, exist_ok=True)
-    (SITE_DIR / "index.html").write_text(dashboard_html, encoding="utf-8")
-    (SITE_DIR / "archive" / f"{period.run_id}.html").write_text(dashboard_html, encoding="utf-8")
+    (SITE_DIR / "index.html").write_text(with_nav(dashboard_html, "./"), encoding="utf-8")
+    (SITE_DIR / "archive" / f"{period.run_id}.html").write_text(with_nav(dashboard_html, "../"), encoding="utf-8")
     (SITE_DIR / ".nojekyll").touch()
 
     email_html = build_email.render(period, current, previous, len(payload["papers"]), len(payload["runs"]))
@@ -65,6 +74,9 @@ def build_outputs(con, period):
     email_path.write_text(email_html, encoding="utf-8")
 
     excel_path = build_excel.build(payload, OUTPUT_DIR / "nuclear-literature-database.xlsx")
+    shutil.copy2(excel_path, SITE_DIR / excel_path.name)
+    archives = [path.stem for path in (SITE_DIR / "archive").glob("*.html")]
+    (SITE_DIR / "database.html").write_text(build_database_page.render(payload, archives), encoding="utf-8")
     return {"current": len(current), "previous": len(previous), "papers": len(payload["papers"]), "runs": len(payload["runs"]),
             "email_html": email_html, "email_path": email_path, "excel_path": excel_path}
 

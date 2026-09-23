@@ -34,9 +34,9 @@
         footer { margin-top:32px;color:var(--muted);font-size:12px;text-align:center }
         @media(max-width:650px) { .metrics { grid-template-columns:1fr } header { padding:24px } .date { margin-left:0 } .bar-row { grid-template-columns:115px 1fr 28px } .timeline { gap:3px } .journal-filter { width:100%;text-align:left } .keyword-grid,.surge-grid,.watch-grid { grid-template-columns:1fr } .trend-head { display:none } .trend-row { grid-template-columns:1fr } .trend-period { grid-template-columns:1fr 30px 40px } .trend-delta { text-align:left } }
         @media print { body { background:white } .wrap { max-width:none;padding:0 } header,.paper,.panel,.metric { box-shadow:none;break-inside:avoid } }
-      </style>
+      .sitenav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}.sitenav a{padding:7px 13px;border:1px solid #d9e2ec;border-radius:999px;background:#fff;color:#075985;font-size:13px;font-weight:700;text-decoration:none}.sitenav a.on{background:#0b6bcb;border-color:#0b6bcb;color:#fff}</style>
     </head>
-    <body><div class="wrap">
+    <body><div class="wrap"><nav class="sitenav"><a href="./index.html" class=on>이번 주 동향</a><a href="./database.html">누적 데이터베이스</a><a href="./nuclear-literature-database.xlsx">Excel 내려받기</a></nav>
       <header>
         <h1>원자력공학 최근 논문 다이제스트</h1>
         <p>대상 기간: 2026-09-14 ~ 2026-09-20 · DOI 신규 등록 기준</p>
