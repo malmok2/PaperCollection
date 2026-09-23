@@ -161,6 +161,42 @@ def collect(period: Period):
     return ordered
 
 
+def enrich_recent(con, since, limit=800):
+    """Fill abstracts/countries/OA from OpenAlex for stored papers that lack them.
+
+    Keeps week-to-week comparisons fair: topic rules read title+abstract, so a week with abstracts
+    must not be compared against a week without them. Topics are recomputed after the update.
+    """
+    from .database import set_topics
+
+    rows = con.execute(
+        "SELECT doi, title_en, abstract, countries FROM papers WHERE doi_registered_date >= ? "
+        "AND (IFNULL(abstract,'')='' OR IFNULL(countries,'')='') ORDER BY doi_registered_date DESC LIMIT ?",
+        (str(since), limit),
+    ).fetchall()
+    filled = {"checked": len(rows), "abstract": 0, "countries": 0}
+    with con:
+        for row in rows:
+            work = openalex_work(row["doi"])
+            if not work:
+                continue
+            abstract = row["abstract"] or abstract_from(work)
+            countries, primary = countries_from(work)
+            if abstract and not row["abstract"]:
+                filled["abstract"] += 1
+                con.execute("UPDATE papers SET abstract=?, abstract_source='OpenAlex' WHERE doi=?", (abstract, row["doi"]))
+            if countries and not row["countries"]:
+                filled["countries"] += 1
+                con.execute("UPDATE papers SET countries=?, primary_country=?, country_source='OpenAlex authorship institutions' WHERE doi=?",
+                            (";".join(countries), primary, row["doi"]))
+            if (work.get("open_access") or {}).get("is_oa"):
+                con.execute("UPDATE papers SET open_access=1 WHERE doi=?", (row["doi"],))
+            primary_topic = set_topics(con, row["doi"], {"title": row["title_en"], "abstract": abstract})
+            con.execute("UPDATE papers SET primary_topic=? WHERE doi=?", (primary_topic, row["doi"]))
+            time.sleep(0.05)
+    return filled
+
+
 def main():
     parser = argparse.ArgumentParser(description="Collect one weekly window into data/raw/")
     parser.add_argument("--run-date", default=date.today().isoformat(), help="Any date; snapped to that week's Monday")
@@ -174,3 +210,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

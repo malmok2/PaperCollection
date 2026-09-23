@@ -7,23 +7,8 @@ import json
 from collections import Counter, defaultdict
 from datetime import date, timedelta
 
+from . import site_theme
 from .common import SETTINGS
-
-NAV_CSS = (
-    ".sitenav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}"
-    ".sitenav a{padding:7px 13px;border:1px solid #d9e2ec;border-radius:999px;background:#fff;color:#075985;"
-    "font-size:13px;font-weight:700;text-decoration:none}.sitenav a.on{background:#0b6bcb;border-color:#0b6bcb;color:#fff}"
-)
-
-
-def nav_html(active, prefix="./"):
-    items = [("index", "이번 주 동향", "index.html"), ("database", "누적 데이터베이스", "database.html"),
-             ("excel", "Excel 내려받기", "nuclear-literature-database.xlsx")]
-    links = "".join(
-        f'<a href="{prefix}{href}"{" class=on" if key == active else ""}>{label}</a>' for key, label, href in items
-    )
-    return f'<nav class="sitenav">{links}</nav>'
-
 
 def week_of(value):
     day = date.fromisoformat(value[:10])
@@ -61,93 +46,91 @@ def render(payload, archive_ids):
     with_abstract = sum(bool(r["ab"]) for r in rows)
     with_country = sum(bool(r["c"]) for r in rows)
 
+    css = """
+.filters{display:grid;grid-template-columns:2fr repeat(4,minmax(0,1fr));gap:.5rem;margin-bottom:.75rem}
+.filters input,.filters select,.filters2 input[type=date],.filters2 select{width:100%;padding:.6rem .7rem;border:1px solid var(--color-line);border-radius:0;
+  background:var(--color-card);color:var(--color-neutral-800);font:inherit;font-size:.8125rem}
+.filters2{display:flex;flex-wrap:wrap;gap:.5rem .75rem;align-items:center;font-size:.8125rem;color:var(--color-neutral-600)}
+.filters2 input[type=date]{width:auto}.filters2 select{width:auto}
+.filters2 label{display:inline-flex;gap:.35rem;align-items:center}
+.status{margin:1rem 0 0;padding:.7rem 1rem;background:var(--color-accent-soft);border-left:3px solid var(--color-accent);font-size:.875rem;color:var(--color-neutral-800)}
+.bars{display:flex;align-items:flex-end;gap:.4rem;height:12rem;padding-top:1.25rem;border-bottom:1px solid var(--color-line-strong)}
+.bar{flex:1;min-width:.9rem;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;cursor:pointer;border:0;background:none;padding:0;font:inherit}
+.bar i{display:block;width:100%;max-width:2.4rem;background:var(--chart);border-radius:4px 4px 0 0;min-height:2px}
+.bar b{font-size:.6875rem;font-weight:600;color:var(--color-ink);margin-bottom:.2rem;font-variant-numeric:tabular-nums}
+.bar:hover i{background:var(--color-accent-mid)}.bar.on i{background:var(--color-accent)}
+.xlabels{display:flex;gap:.4rem}.xlabels span{flex:1;min-width:.9rem;text-align:center;font-size:.625rem;color:var(--color-neutral-500);white-space:nowrap;overflow:hidden;padding-top:.3rem}
+.heat-wrap{overflow-x:auto}table.heat{border-collapse:separate;border-spacing:2px;font-size:.75rem;width:100%}
+.heat th{font-weight:500;color:var(--color-neutral-500);font-size:.6875rem;padding:.15rem .3rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.heat th.row{text-align:left;color:var(--color-neutral-700);font-size:.75rem}
+.heat td{text-align:center;padding:.4rem .15rem;cursor:pointer;min-width:2.2rem;color:var(--color-ink);font-variant-numeric:tabular-nums}
+.heat td.hi{color:var(--color-canvas)}.heat td.z{color:var(--color-neutral-400);background:var(--color-surface)}
+.heat td:hover{outline:2px solid var(--color-accent);outline-offset:-2px}
+#list{border-top:1px solid var(--color-line-strong);margin-top:1rem}
+.paper{padding:1.2rem 0;border-bottom:1px solid var(--color-line)}
+.top{display:flex;flex-wrap:wrap;gap:.6rem;font-size:.75rem;color:var(--color-neutral-500);font-variant-numeric:tabular-nums}.top .jr{color:var(--color-neutral-700);font-weight:500}
+.top .oa{color:var(--color-accent);font-weight:500}
+.paper h3{margin:.4rem 0 .2rem;font-size:1rem;line-height:1.45;font-weight:600;letter-spacing:-.01em}.paper h3 a{color:var(--color-ink)}
+.ko{color:var(--color-neutral-700);font-size:.9rem;line-height:1.6}.au{color:var(--color-neutral-500);font-size:.75rem;margin-top:.3rem;line-height:1.7}
+.tags{margin-top:.5rem;display:flex;flex-wrap:wrap;gap:.35rem}
+details{margin-top:.5rem;font-size:.875rem}summary{cursor:pointer;color:var(--color-accent);font-size:.75rem}
+details p{margin:.5rem 0 0;line-height:1.9;color:var(--color-neutral-700);max-width:48rem}
+.pager{display:flex;justify-content:center;align-items:center;gap:.75rem;margin:1.5rem 0 0;font-size:.8125rem;color:var(--color-neutral-600)}
+.btn[disabled]{opacity:.4;cursor:default}
+.archive{display:grid;grid-template-columns:repeat(auto-fill,minmax(9rem,1fr));gap:1px;border:1px solid var(--color-line);background:var(--color-line)}
+.archive a{display:block;padding:.8rem 1rem;background:var(--color-card);color:var(--color-neutral-800);text-decoration:none;font-size:.875rem;font-variant-numeric:tabular-nums}
+.archive a:hover{color:var(--color-accent)}
+@media(max-width:760px){.filters{grid-template-columns:1fr 1fr}.filters input{grid-column:1/-1}}
+"""
+    stats = "".join(
+        f"<div><strong>{value}</strong><span>{label}</span></div>"
+        for value, label in [
+            (len(rows), "누적 논문"), (len(payload["runs"]), "수집 회차"), (len(weeks), "주간 (DOI 등록일 기준)"),
+            (with_abstract, "초록 보유"), (oa, "Open Access"), (f"{round(with_country / max(len(rows), 1) * 100)}%", "국가 정보 보유"),
+        ]
+    )
     return f"""<!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>원자력 문헌 누적 DB</title>
-<style>
-:root{{--navy:#102a43;--blue:#0b6bcb;--sky:#eaf4ff;--line:#d9e2ec;--ink:#243b53;--muted:#627d98;--bg:#f5f8fb}}
-*{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,'Noto Sans KR',sans-serif;line-height:1.55}}
-.wrap{{max-width:1080px;margin:auto;padding:28px 16px 80px}}
-header{{background:linear-gradient(135deg,#102a43,#1668a9);color:#fff;border-radius:18px;padding:30px;margin-bottom:16px}}
-header h1{{margin:0 0 8px;font-size:28px}}header p{{margin:4px 0;color:#d9edff}}
-{NAV_CSS}
-.metrics{{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:0 0 14px}}
-.metric{{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px;text-align:center;font-size:12px;color:var(--muted)}}
-.metric strong{{display:block;font-size:22px;color:var(--navy)}}
-.panel{{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin:14px 0}}
-.panel h2{{margin:0 0 4px;font-size:18px;color:var(--navy)}}.hint{{margin:0 0 12px;color:var(--muted);font-size:12px}}
-.bars{{display:flex;align-items:flex-end;gap:6px;height:190px;padding-top:18px;border-bottom:1px solid var(--line)}}
-.bar{{flex:1;min-width:14px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;cursor:pointer;border:0;background:none;padding:0;font:inherit}}
-.bar i{{display:block;width:100%;max-width:38px;background:var(--blue);border-radius:4px 4px 0 0;min-height:2px}}
-.bar b{{font-size:11px;color:var(--ink);margin-bottom:3px}}.bar:hover i,.bar.on i{{background:var(--navy)}}
-.xlabels{{display:flex;gap:6px}}.xlabels span{{flex:1;min-width:14px;text-align:center;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden}}
-.heat-wrap{{overflow-x:auto}}table.heat{{border-collapse:separate;border-spacing:2px;font-size:12px;width:100%}}
-.heat th{{font-weight:400;color:var(--muted);font-size:11px;padding:2px 4px;white-space:nowrap}}.heat th.row{{text-align:left;color:var(--ink);font-size:12px}}
-.heat td{{text-align:center;padding:6px 2px;border-radius:4px;cursor:pointer;min-width:34px}}.heat td.z{{color:#b6c2cf}}.heat td:hover{{outline:2px solid var(--navy)}}
-.filters{{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:8px;margin-bottom:8px}}
-.filters input,.filters select{{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:13px;background:#fff;color:var(--ink)}}
-.filters2{{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--muted)}}
-.filters2 input[type=date]{{padding:7px 8px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:13px}}
-button.act{{padding:8px 13px;border:1px solid var(--line);border-radius:8px;background:#fff;color:#075985;font:inherit;font-size:13px;font-weight:700;cursor:pointer}}
-button.act:hover{{background:var(--sky)}}
-.status{{margin:12px 0;padding:10px 14px;background:var(--sky);border-left:4px solid var(--blue);border-radius:7px;font-size:13px}}
-.paper{{background:#fff;border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:10px;padding:14px 16px;margin:10px 0}}
-.top{{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--muted)}}.top .jr{{background:#edf2f7;padding:1px 8px;border-radius:999px}}
-.paper h3{{margin:6px 0 2px;font-size:15px;line-height:1.4}}.paper h3 a{{color:#075985;text-decoration:none}}.paper h3 a:hover{{text-decoration:underline}}
-.ko{{color:var(--navy);font-size:14px}}.au{{color:var(--muted);font-size:12px;margin-top:4px}}
-.tag{{display:inline-block;margin:4px 4px 0 0;padding:2px 8px;border-radius:999px;background:var(--sky);color:#075985;font-size:11px}}
-details{{margin-top:6px;font-size:13px}}summary{{cursor:pointer;color:var(--blue);font-size:12px}}
-.pager{{display:flex;justify-content:center;align-items:center;gap:10px;margin:16px 0;font-size:13px}}
-.archive{{display:flex;flex-wrap:wrap;gap:8px}}.archive a{{padding:6px 11px;border:1px solid var(--line);border-radius:8px;color:#075985;text-decoration:none;font-size:13px;background:#fff}}
-footer{{margin-top:28px;color:var(--muted);font-size:12px;text-align:center}}
-@media(max-width:760px){{.metrics{{grid-template-columns:repeat(3,1fr)}}.filters{{grid-template-columns:1fr 1fr}}.filters input{{grid-column:1/-1}}header{{padding:22px}}}}
-</style></head>
-<body><div class="wrap">
-{nav_html("database")}
-<header><h1>원자력공학 문헌 누적 데이터베이스</h1>
-<p>{len(journals)}개 저널 · DOI 등록일 {esc(first)} ~ {esc(last)} · DOI 기준 중복 제거</p>
-<p>검색·필터 결과는 CSV로, 전체 DB는 Excel로 내려받을 수 있습니다.</p></header>
+<html lang="ko"><head>
+{site_theme.head("원자력공학 문헌 누적 데이터베이스 · THINKLAB", "원자력공학 주요 5개 저널 누적 논문 데이터베이스 — 검색, 필터, 주간 추세", css)}
+</head><body>
+{site_theme.site_header("database")}
+{site_theme.page_header("Literature Database", "원자력공학 문헌 누적 데이터베이스",
+    f"<b>{len(journals)}개 저널 · DOI 등록일 {esc(first)} ~ {esc(last)}</b> · DOI 기준 중복 제거. 검색·필터 결과는 CSV로, 전체 DB는 Excel로 내려받을 수 있습니다.")}
+<main class="page"><div class="container-page">
+<section class="section"><div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))">{stats}</div></section>
 
-<section class="metrics">
-<div class="metric"><strong>{len(rows)}</strong>누적 논문</div>
-<div class="metric"><strong>{len(payload["runs"])}</strong>수집 회차</div>
-<div class="metric"><strong>{len(weeks)}</strong>주간(등록일 기준)</div>
-<div class="metric"><strong>{with_abstract}</strong>초록 보유</div>
-<div class="metric"><strong>{oa}</strong>Open Access</div>
-<div class="metric"><strong>{round(with_country / max(len(rows), 1) * 100)}%</strong>국가정보 보유</div>
-</section>
+<section class="section sec-grid"><div class="sec-side"><p class="eyebrow">01</p><h2>주간 신규 논문 수</h2>
+<p class="note">DOI 등록일이 속한 주(월요일 시작). 막대를 누르면 그 주 논문만 아래 목록에 남습니다.</p></div>
+<div class="sec-body"><div class="bars" id="bars"></div><div class="xlabels" id="xlabels"></div></div></section>
 
-<section class="panel"><h2>주간 신규 논문 수</h2>
-<p class="hint">DOI 등록일이 속한 주(월요일 기준). 막대를 누르면 그 주 논문만 아래 목록에 표시합니다.</p>
-<div class="bars" id="bars"></div><div class="xlabels" id="xlabels"></div></section>
+<section class="section sec-grid"><div class="sec-side"><p class="eyebrow">02</p><h2>주간 토픽 분포</h2>
+<p class="note">숫자는 논문 수, 색이 진할수록 그 주 전체에서 차지하는 비중이 큽니다. 한 논문이 여러 토픽에 해당하면 각각 집계됩니다. 칸을 누르면 해당 토픽·주간으로 필터합니다.</p></div>
+<div class="sec-body"><div class="heat-wrap"><table class="heat" id="heat"></table></div></div></section>
 
-<section class="panel"><h2>주간 토픽 분포</h2>
-<p class="hint">칸의 숫자는 논문 수이며, 색이 진할수록 그 주 전체 대비 비중이 큽니다. 칸을 누르면 해당 토픽·주간으로 필터합니다.</p>
-<div class="heat-wrap"><table class="heat" id="heat"></table></div></section>
-
-<section class="panel"><h2>논문 검색</h2>
+<section class="section" id="search"><p class="eyebrow eyebrow-mark eyebrow-accent">Search</p>
+<h2 style="margin:1rem 0 1.25rem;font-size:1.375rem;font-weight:600;letter-spacing:-.015em;color:var(--color-ink)">논문 검색</h2>
 <div class="filters">
-<input id="q" type="search" placeholder="제목(영/한), 저자, 초록, DOI 검색">
-<select id="fj"><option value="">전체 저널</option></select>
-<select id="ft"><option value="">전체 토픽</option></select>
-<select id="fc"><option value="">전체 국가</option></select>
-<select id="fy"><option value="">전체 문서유형</option></select>
+<input id="q" type="search" placeholder="제목(영/한)·저자·초록·DOI" aria-label="검색어">
+<select id="fj" aria-label="저널"><option value="">전체 저널</option></select>
+<select id="ft" aria-label="토픽"><option value="">전체 토픽</option></select>
+<select id="fc" aria-label="국가"><option value="">전체 국가</option></select>
+<select id="fy" aria-label="문서 유형"><option value="">전체 문서유형</option></select>
 </div>
-<div class="filters2">DOI 등록일 <input type="date" id="d1"> ~ <input type="date" id="d2">
+<div class="filters2">DOI 등록일 <input type="date" id="d1" aria-label="시작일"> ~ <input type="date" id="d2" aria-label="종료일">
 <label><input type="checkbox" id="fo"> Open Access만</label>
 <label><input type="checkbox" id="fa"> 초록 있는 논문만</label>
-<select id="sort" class="act"><option value="new">최신순</option><option value="old">오래된순</option><option value="journal">저널순</option></select>
-<button class="act" id="reset" type="button">필터 초기화</button>
-<button class="act" id="csv" type="button">검색 결과 CSV</button></div>
-<div class="status" id="status"></div>
+<select id="sort" aria-label="정렬"><option value="new">최신순</option><option value="old">오래된순</option><option value="journal">저널순</option></select>
+<button class="btn" id="reset" type="button">필터 초기화</button>
+<button class="btn" id="csv" type="button">검색 결과 CSV</button></div>
+<div class="status" id="status" aria-live="polite"></div>
 <div id="list"></div>
-<div class="pager"><button class="act" id="prev" type="button">이전</button><span id="page"></span><button class="act" id="next" type="button">다음</button></div>
+<div class="pager"><button class="btn" id="prev" type="button">이전</button><span id="page" class="tabular"></span><button class="btn" id="next" type="button">다음</button></div>
 </section>
 
-<section class="panel"><h2>회차별 대시보드</h2><p class="hint">매주 발행된 동향 대시보드 원본입니다.</p><div class="archive" id="archive"></div></section>
-
-<footer>수집 기준: Crossref DOI created date · 국가·OA·초록: OpenAlex · 토픽: 제목+초록 키워드 규칙 · 매주 월요일 자동 갱신</footer>
-</div>
+<section class="section sec-grid"><div class="sec-side"><p class="eyebrow">Archive</p><h2>회차별 동향</h2>
+<p class="note">매주 발행된 동향 페이지 원본입니다.</p></div><div class="sec-body"><div class="archive" id="archive"></div></div></section>
+</div></main>
+{site_theme.site_footer()}
 <script id="data" type="application/json">{data_json}</script>
 <script>
 (() => {{
@@ -162,7 +145,7 @@ R.forEach(r => r.s = (r.t + ' ' + r.k + ' ' + r.a + ' ' + r.ab + ' ' + r.d).toLo
 const fill = (id, vals, label) => $(id).insertAdjacentHTML('beforeend', vals.map(v => `<option value="${{esc(v)}}">${{esc(label ? label(v) : v)}}</option>`).join(''));
 fill('fj', M.journals); fill('ft', M.topics); fill('fc', M.countries, cname);
 fill('fy', [...new Set(R.map(r => r.y))]);
-$('archive').innerHTML = M.archives.map(a => `<a href="./archive/${{a}}.html">${{a}}</a>`).join('') || '<span class="hint">아직 없음</span>';
+$('archive').innerHTML = M.archives.map(a => `<a href="./archive/${{a}}.html">${{a}}</a>`).join('') || '<span class="caption">아직 없음</span>';
 
 // Weekly bars (single series: no legend; value label on top, native tooltip on hover)
 const wc = {{}}; R.forEach(r => wc[r.w] = (wc[r.w] || 0) + 1);
@@ -173,20 +156,19 @@ $('bars').addEventListener('click', e => {{ const b = e.target.closest('.bar'); 
 
 // Topic x week heatmap: one hue, lightness by within-week share; counts printed in every cell
 const tw = {{}}; R.forEach(r => r.tp.forEach(t => {{ const k = t + '|' + r.w; tw[k] = (tw[k] || 0) + 1; }}));
-const shade = f => `rgba(11,107,203,${{(0.08 + 0.85 * f).toFixed(2)}})`;
+const shade = f => `color-mix(in srgb, var(--chart) ${{Math.round((0.12 + 0.88 * f) * 100)}}%, var(--color-surface))`;
 $('heat').innerHTML = '<tr><th></th>' + M.weeks.map(w => `<th>${{w.slice(5)}}</th>`).join('') + '<th>합계</th></tr>' +
   M.topics.map(t => {{
     let total = 0;
     const cells = M.weeks.map(w => {{
       const n = tw[t + '|' + w] || 0, f = n / Math.max(1, wc[w] || 0); total += n;
-      return n ? `<td data-t="${{esc(t)}}" data-w="${{w}}" style="background:${{shade(Math.min(1, f / 0.5))}};color:${{f > 0.3 ? '#fff' : '#102a43'}}" title="${{esc(t)}} · ${{w}}주: ${{n}}편 (${{Math.round(f * 100)}}%)">${{n}}</td>` : `<td class="z" data-t="${{esc(t)}}" data-w="${{w}}">·</td>`;
+      return n ? `<td data-t="${{esc(t)}}" data-w="${{w}}" class="${{Math.min(1, f / 0.5) > 0.45 ? 'hi' : ''}}" style="background:${{shade(Math.min(1, f / 0.5))}}" title="${{esc(t)}} · ${{w}}주: ${{n}}편 (${{Math.round(f * 100)}}%)">${{n}}</td>` : `<td class="z" data-t="${{esc(t)}}" data-w="${{w}}">·</td>`;
     }}).join('');
     return `<tr><th class="row">${{esc(t)}}</th>${{cells}}<th>${{total}}</th></tr>`;
   }}).join('');
 $('heat').addEventListener('click', e => {{ const c = e.target.closest('td'); if (!c) return; $('ft').value = c.dataset.t; setWeek(c.dataset.w); }});
-const note = document.createElement('p'); note.className = 'hint'; note.textContent = '한 논문이 여러 토픽에 해당하면 각 토픽에 모두 집계됩니다.'; $('heat').after(note);
 
-function setWeek(w) {{ weekSel = w; $('d1').value = w; $('d2').value = w ? endOf(w) : ''; page = 0; draw(); $('list').scrollIntoView({{behavior: 'smooth', block: 'start'}}); }}
+function setWeek(w) {{ weekSel = w; $('d1').value = w; $('d2').value = w ? endOf(w) : ''; page = 0; draw(); $('search').scrollIntoView({{behavior: 'smooth', block: 'start'}}); }}
 
 function filtered() {{
   const q = $('q').value.trim().toLowerCase().split(/\\s+/).filter(Boolean);
@@ -208,17 +190,17 @@ function draw() {{
   $('prev').disabled = page === 0; $('next').disabled = page >= pages - 1;
   $('list').innerHTML = rows.slice(page * PER, page * PER + PER).map(r => {{
     const au = r.a.split('; ').filter(Boolean), auText = au.slice(0, 6).join(', ') + (au.length > 6 ? ' et al.' : '');
-    return `<article class="paper"><div class="top"><span>${{r.r}}</span><span class="jr">${{esc(r.j)}}</span><span>${{esc(r.y)}}</span>${{r.o ? '<span>Open Access</span>' : ''}}</div>
-<h3><a href="https://doi.org/${{esc(r.d)}}" target="_blank" rel="noopener">${{esc(r.t)}}</a></h3><div class="ko">${{esc(r.k)}}</div>
+    return `<article class="paper"><div class="top"><span>${{r.r}}</span><span class="jr">${{esc(r.j)}}</span><span>${{esc(r.y)}}</span>${{r.o ? '<span class="oa">Open Access</span>' : ''}}</div>
+<h3><a class="link-wipe" href="https://doi.org/${{esc(r.d)}}" target="_blank" rel="noopener">${{esc(r.t)}}</a></h3><div class="ko">${{esc(r.k)}}</div>
 <div class="au">${{esc(auText)}}${{r.c.length ? ' · ' + r.c.map(cname).join(', ') : ''}}</div>
-<div>${{r.tp.map(t => `<span class="tag">${{esc(t)}}</span>`).join('')}}</div>
+<div class="tags">${{r.tp.map(t => `<span class="pill">${{esc(t)}}</span>`).join('')}}</div>
 ${{r.ab ? `<details><summary>초록 보기</summary><p>${{esc(r.ab)}}</p></details>` : ''}}</article>`;
-  }}).join('') || '<p class="hint">조건에 맞는 논문이 없습니다.</p>';
+  }}).join('') || '<p class="caption">조건에 맞는 논문이 없습니다.</p>';
 }}
 
 ['q', 'fj', 'ft', 'fc', 'fy', 'd1', 'd2', 'fo', 'fa', 'sort'].forEach(id => $(id).addEventListener('input', () => {{ page = 0; if (id === 'd1' || id === 'd2') weekSel = ''; draw(); }}));
-$('prev').onclick = () => {{ page--; draw(); $('list').scrollIntoView(); }};
-$('next').onclick = () => {{ page++; draw(); $('list').scrollIntoView(); }};
+$('prev').onclick = () => {{ page--; draw(); $('search').scrollIntoView(); }};
+$('next').onclick = () => {{ page++; draw(); $('search').scrollIntoView(); }};
 $('reset').onclick = () => {{ ['q', 'fj', 'ft', 'fc', 'fy', 'd1', 'd2'].forEach(id => $(id).value = ''); $('fo').checked = $('fa').checked = false; weekSel = ''; page = 0; draw(); }};
 $('csv').onclick = () => {{
   const cols = [['doi', 'd'], ['title_en', 't'], ['title_ko', 'k'], ['journal', 'j'], ['authors', 'a'], ['doi_registered', 'r'], ['primary_topic', 'p'], ['countries', 'c'], ['open_access', 'o'], ['abstract', 'ab']];

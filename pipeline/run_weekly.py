@@ -49,23 +49,16 @@ def collect_week(con, period):
     return found
 
 
-def with_nav(page, prefix):
-    """Add the site navigation (this week / cumulative DB / Excel) to a dashboard page."""
-    nav = build_database_page.nav_html("index", prefix)
-    page = page.replace("</style>", build_database_page.NAV_CSS + "</style>", 1)
-    return page.replace('<body><div class="wrap">', '<body><div class="wrap">' + nav, 1)
-
-
 def build_outputs(con, period):
     current = [database.as_record(r) for r in database.papers_between(con, period.start, period.end)]
     previous = [database.as_record(r) for r in database.papers_between(con, period.previous.start, period.previous.end)]
     payload = database.export_payload(con)
     cumulative = [database.as_record(r) for r in payload["papers"]]
 
-    dashboard_html = build_dashboard.render(period, current, previous, cumulative, len(payload["runs"]))
     (SITE_DIR / "archive").mkdir(parents=True, exist_ok=True)
-    (SITE_DIR / "index.html").write_text(with_nav(dashboard_html, "./"), encoding="utf-8")
-    (SITE_DIR / "archive" / f"{period.run_id}.html").write_text(with_nav(dashboard_html, "../"), encoding="utf-8")
+    for path, prefix in [(SITE_DIR / "index.html", "./"), (SITE_DIR / "archive" / f"{period.run_id}.html", "../")]:
+        page = build_dashboard.render(period, [dict(r) for r in current], previous, cumulative, len(payload["runs"]), prefix)
+        path.write_text(page, encoding="utf-8")
     (SITE_DIR / ".nojekyll").touch()
 
     email_html = build_email.render(period, current, previous, len(payload["papers"]), len(payload["runs"]))
@@ -98,6 +91,7 @@ def main():
         if not args.skip_collect:
             for week in weeks_to_collect(con, period, args.max_backfill):
                 collect_week(con, week)
+            log("enriched", **collect.enrich_recent(con, since=period.start - timedelta(weeks=11)))
         database.sync_titles(con, translate.load_cache())
         integrity = database.validate(con)
         result = build_outputs(con, period)

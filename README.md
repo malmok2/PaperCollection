@@ -9,6 +9,7 @@ ChatGPT/Codex에서 운영하던 시스템(`legacy/codex-handoff/`)을 GitHub Ac
 매주 월 07:00 KST (GitHub Actions, 클라우드에서 실행 — 연구실 PC 불필요)
   ├─ Crossref: 지난주(월~일) DOI 신규 등록 논문 수집
   ├─ OpenAlex: 저자 소속 국가, Open Access 여부, 초록(있는 경우)
+  ├─ 최근 12주 논문 중 초록·국가가 빈 논문을 OpenAlex로 다시 보강 (주간 비교 공정성)
   ├─ 제목 한글 번역 (Claude API → 없으면 MyMemory)          ※ DOI별 캐시
   ├─ SQLite 누적 DB 갱신 (DOI 중복 제거) → data/literature.sql(텍스트)로 저장
   ├─ 대시보드 HTML (docs/index.html, docs/archive/날짜.html)
@@ -53,7 +54,11 @@ GitHub 저장소 → **Settings → Secrets and variables → Actions** 에서 �
 
 기존 `nuclear-literature-dashboard.ssrmin.chatgpt.site`는 Codex 전용 호스팅이라 여기서 갱신할 수 없습니다.
 
-## 4. 로컬 실행
+## 4. 디자인
+
+공개 페이지는 연구실 홈페이지(`malmok2/Think_webpage`의 `DESIGN.md`) 규칙을 따릅니다 — 색·글꼴·여백 토큰, 그림자·둥근 모서리 없음, 강조색 1개(532 nm 녹색), 밝은/어두운 화면 전환. 공통 스타일은 `pipeline/site_theme.py` 한 곳에 있습니다.
+
+## 5. 로컬 실행
 
 ```bash
 pip install -r requirements.txt
@@ -63,7 +68,7 @@ python -m pipeline.run_weekly --skip-collect --no-email   # DB로 결과물만 �
 python -m pipeline.send_email --test                  # 한글 인코딩 테스트 메일 (SMTP 환경변수 필요)
 ```
 
-## 5. 설정 변경 — `config/settings.json` 한 파일
+## 6. 설정 변경 — `config/settings.json` 한 파일
 
 | 키 | 내용 |
 |---|---|
@@ -76,7 +81,7 @@ python -m pipeline.send_email --test                  # 한글 인코딩 테스�
 
 기존에는 같은 규칙이 3개 파일(`update_weekly_database.py`, `build_digest.py`, `init_literature_database.py`)에 중복돼 있었습니다.
 
-## 6. 폴더 구조
+## 7. 폴더 구조
 
 ```
 config/settings.json        설정 (저널, 토픽, 관심분야, 수신자, 용어집)
@@ -91,7 +96,7 @@ state/latest-run.json       마지막 실행 결과 / state/sent-runs.json 발�
 legacy/codex-handoff/       이전 Codex 버전 코드와 인수인계 문서 (참고용)
 ```
 
-## 7. 알려진 한계
+## 8. 알려진 한계
 
 - "신규"의 기준은 Crossref **DOI 등록일(created)** 입니다. 온라인 공개일·권호일과 다를 수 있습니다.
 - Crossref에 Elsevier 초록은 거의 없습니다. 초록은 OpenAlex에 있는 경우에만 채워집니다(기존 DB 344편은 초록 0편).

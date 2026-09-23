@@ -10,6 +10,7 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
+from . import site_theme
 from .common import SETTINGS, document_type, paper_text, topics_for
 
 WATCHLISTS = SETTINGS["watchlists"]
@@ -50,7 +51,7 @@ def provisional_intro(title, tags):
 
 
 
-def render(period, records, previous_records, cumulative_records, run_count):
+def render(period, records, previous_records, cumulative_records, run_count, nav_prefix="./"):
     """records / previous_records / cumulative_records: dicts from database.as_record()."""
     RUN_DATE = period.run_id
     PERIOD_START, PERIOD_END = period.start.isoformat(), period.end.isoformat()
@@ -177,7 +178,7 @@ def render(period, records, previous_records, cumulative_records, run_count):
         cards.append(f"""
           <article class="paper" data-journal="{esc(record['journal'])}" data-topic="{esc(record['primary_area'])}" data-title="{esc(paper_text(record))}" data-watch="{esc(watch_names)}" data-country="{esc('|'.join(countries))}" data-type="{esc(record['document_type'])}">
             <div class="paper-top"><span class="num">{number:03d}</span><span class="journal">{esc(record['journal'])}</span><span class="date">DOI 등록 {esc(record['registered_date'])}</span></div>
-            <h2><a href="{esc(record['doi_url'])}" target="_blank" rel="noopener noreferrer">{esc(record['title'])}</a></h2>
+            <h2><a class="link-wipe" href="{esc(record['doi_url'])}" target="_blank" rel="noopener noreferrer">{esc(record['title'])}</a></h2>
             <h3 class="title-ko">{esc(record['title_ko'])}</h3>
             <p class="authors">{esc(author_text)}</p>
             <div class="tags"><span class="type-tag">{esc(record['document_type'])}</span>{tags_html}</div>
@@ -185,8 +186,8 @@ def render(period, records, previous_records, cumulative_records, run_count):
             <p class="basis">저자 소속 국가: {esc(country_text)} · {esc(record['summary_basis'])} · 온라인/권호일 {esc(date_text)} · <a class="abstract-link" href="{esc(record['publisher_url'] or record['doi_url'])}" target="_blank" rel="noopener noreferrer">{abstract_link_label}</a> · <a href="{esc(record['doi_url'])}" target="_blank" rel="noopener noreferrer">DOI</a></p>
           </article>""")
 
-    journal_rows = f'<button type="button" class="journal-filter active" data-journal="all" aria-pressed="true">전체 <strong>{len(records)}</strong></button>' + "".join(
-        f'<button type="button" class="journal-filter" data-journal="{esc(name)}" aria-pressed="false"><span>{esc(name)}</span> <strong>{count}</strong></button>'
+    journal_rows = f'<button type="button" class="chip journal-filter active" data-journal="all" aria-pressed="true">전체 <strong>{len(records)}</strong></button>' + "".join(
+        f'<button type="button" class="chip journal-filter" data-journal="{esc(name)}" aria-pressed="false"><span>{esc(name)}</span> <strong>{count}</strong></button>'
         for name, count in by_journal.items()
     )
     type_rows = "".join(f'<span class="type-summary"><strong>{esc(name)}</strong> {count}</span>' for name, count in type_counts.items())
@@ -208,9 +209,10 @@ def render(period, records, previous_records, cumulative_records, run_count):
         cells = []
         for code in top_country_codes:
             count = sum(r["journal"] == journal and code in country_codes(r) for r in records)
-            cells.append(f'<td style="--cell-opacity:{0.08 + min(count/5, 0.75):.2f}"><button type="button" class="matrix-cell journal-country-trigger" data-journal="{esc(journal)}" data-country="{esc(code)}"><strong>{count}</strong></button></td>')
+            cell_opacity = 0.08 + min(count/5, 0.75)
+            cells.append(f'<td class="{"hi" if cell_opacity > 0.5 else ""}" style="--cell-opacity:{cell_opacity:.2f}"><button type="button" class="matrix-cell journal-country-trigger" data-journal="{esc(journal)}" data-country="{esc(code)}"><strong>{count}</strong></button></td>')
         country_matrix_rows.append(f'<tr><th>{esc(journal)}</th>{"".join(cells)}</tr>')
-    country_matrix_header = "".join(f'<th>{esc(country_label(code))}</th>' for code in top_country_codes)
+    country_matrix_header = "".join(f'<th title="{esc(country_label(code))}">{esc(COUNTRY_NAMES.get(code, code))}</th>' for code in top_country_codes)
     country_matrix_html = f'<div class="matrix-wrap"><table class="matrix"><thead><tr><th>저널</th>{country_matrix_header}</tr></thead><tbody>{"".join(country_matrix_rows)}</tbody></table></div><p class="chart-note">저자 소속기관 기준입니다. 국제공동연구는 참여 국가마다 1편으로 집계되어 국가별 합계가 전체 논문 수보다 클 수 있습니다.</p>'
     trend_rows = "".join(
         f'''<button type="button" class="trend-row topic-trigger" data-topic="{esc(area)}">
@@ -260,16 +262,15 @@ def render(period, records, previous_records, cumulative_records, run_count):
             cumulative_count = sum(r["journal"] == journal and (r.get("primary_topic") or FALLBACK_TOPIC) == area for r in cumulative_records)
             journal_total = sum(r["journal"] == journal for r in cumulative_records)
             opacity = 0.08 + (cumulative_count / max(journal_total, 1)) * 1.5
-            cells.append(f'<td style="--cell-opacity:{min(opacity,0.85):.2f}"><button type="button" class="matrix-cell matrix-trigger" data-journal="{esc(journal)}" data-topic="{esc(area)}" aria-label="{esc(journal)}, {esc(area)}, 현재 {current_count}편, 누적 {cumulative_count}편"><strong>{current_count}</strong><small>{cumulative_count}</small></button></td>')
+            cells.append(f'<td class="{"hi" if min(opacity, 0.85) > 0.5 else ""}" style="--cell-opacity:{min(opacity,0.85):.2f}"><button type="button" class="matrix-cell matrix-trigger" data-journal="{esc(journal)}" data-topic="{esc(area)}" aria-label="{esc(journal)}, {esc(area)}, 현재 {current_count}편, 누적 {cumulative_count}편"><strong>{current_count}</strong><small>{cumulative_count}</small></button></td>')
         matrix_rows.append(f'<tr><th>{esc(journal)}</th>{"".join(cells)}</tr>')
     matrix_header = "".join(f'<th>{esc(area)}</th>' for area in area_order)
     matrix_html = f'<div class="matrix-wrap"><table class="matrix"><thead><tr><th>저널</th>{matrix_header}</tr></thead><tbody>{"".join(matrix_rows)}</tbody></table></div><p class="chart-note">각 셀은 <strong>현재 기간</strong> / 누적 순서입니다. 셀을 누르면 해당 조합의 최신 논문만 표시합니다.</p>'
 
-    area_colors = {
-        "열수력·유체": "#0b6bcb", "원자로물리·해석": "#7048e8", "안전·사고·리스크": "#d9480f",
-        "핵연료·재료": "#087f5b", "AI·디지털": "#c2255c", "방사선·계측": "#e67700",
-        "핵연료주기·폐기물": "#5f3dc4", "설계·운전·경제": "#2b8a3e", FALLBACK_TOPIC: "#7b8794",
-    }
+    topic_names = list(SETTINGS["topics"])
+    area_colors = {name: f"var(--s{i + 1})" for i, name in enumerate(topic_names[:8])}
+    area_colors.update({name: "var(--s-other)" for name in topic_names[8:]})
+    area_colors[FALLBACK_TOPIC] = "var(--s-other)"
     x_values = [record["topic_x"] for record in records]
     y_values = [record["topic_y"] for record in records]
     x_min, x_max = min(x_values), max(x_values)
@@ -286,7 +287,7 @@ def render(period, records, previous_records, cumulative_records, run_count):
         tooltip = f"{index:03d} · {record['title_ko']} · {record['primary_area']}"
         point_watches = "|".join(name for name, terms in WATCHLISTS.items() if watch_matches(record, terms))
         scatter_points.append(
-            f'<a href="{esc(record["doi_url"])}" target="_blank" rel="noopener noreferrer"><circle data-journal="{esc(record["journal"])}" data-topic="{esc(record["primary_area"])}" data-title="{esc(paper_text(record))}" data-watch="{esc(point_watches)}" data-country="{esc("|".join(country_codes(record)))}" cx="{cx:.1f}" cy="{cy:.1f}" r="5.2" fill="{color}" fill-opacity="0.76" stroke="#ffffff" stroke-width="1"><title>{esc(tooltip)}</title></circle></a>'
+            f'<a href="{esc(record["doi_url"])}" target="_blank" rel="noopener noreferrer"><circle data-journal="{esc(record["journal"])}" data-topic="{esc(record["primary_area"])}" data-title="{esc(paper_text(record))}" data-watch="{esc(point_watches)}" data-country="{esc("|".join(country_codes(record)))}" cx="{cx:.1f}" cy="{cy:.1f}" r="5.2" style="fill:{color}" fill-opacity="0.85"><title>{esc(tooltip)}</title></circle></a>'
         )
     cluster_labels = []
     for cluster_id, cluster_name in cluster_names.items():
@@ -302,76 +303,56 @@ def render(period, records, previous_records, cumulative_records, run_count):
     <svg class="topic-scatter" viewBox="0 0 840 500" role="img" aria-labelledby="topic-map-title topic-map-desc">
       <title id="topic-map-title">제목 기반 연구 토픽 산점도</title>
       <desc id="topic-map-desc">영문 제목의 TF-IDF 유사도를 SVD로 2차원에 투영한 지도입니다. 가까운 점일수록 제목에서 사용하는 연구 용어가 유사합니다.</desc>
-      <rect x="54" y="18" width="754" height="440" fill="#f8fafc" stroke="#d9e2ec"/>
-      <line x1="54" y1="458" x2="808" y2="458" stroke="#9fb3c8"/><line x1="54" y1="18" x2="54" y2="458" stroke="#9fb3c8"/>
+      <rect class="plot-bg" x="54" y="18" width="754" height="440"/>
+      <line class="axis" x1="54" y1="458" x2="808" y2="458"/><line class="axis" x1="54" y1="18" x2="54" y2="458"/>
       <text x="431" y="490" text-anchor="middle">토픽 성분 1</text><text x="16" y="238" text-anchor="middle" transform="rotate(-90 16 238)">토픽 성분 2</text>
       {''.join(scatter_points)}
       {''.join(cluster_labels)}
     </svg>
     <p class="chart-note">점 하나는 논문 한 편입니다. 가까울수록 제목에 등장하는 용어가 유사하며, 점을 가리키면 한글 제목을 확인하고 클릭하면 DOI로 이동합니다.</p>'''
 
+    head_html = site_theme.head(f"원자력공학 최근 논문 동향 · {RUN_DATE}", f"{PERIOD_START}~{PERIOD_END} 원자력공학 주요 5개 저널 신규 논문 동향 (THINKLAB)", site_theme.DASHBOARD_CSS)
+    header_html = site_theme.site_header("index", nav_prefix)
+    page_head_html = site_theme.page_header(
+        f"Weekly Literature Watch · {RUN_DATE}",
+        "원자력공학 최근 논문 동향",
+        f"<b>{PERIOD_START} ~ {PERIOD_END}</b> DOI 신규 등록 논문 {len(records)}편 · 5개 원자력공학 종합 저널. "
+        f"동향 지표 일부는 누적 {len(cumulative_records)}편({run_count}회 수집)을 함께 씁니다.",
+    )
+    stats_html = (
+        f'<div class="stats four"><div><strong id="visible-count">{len(records)}</strong><span>이번 주 표시 논문</span></div>'
+        f'<div><strong>{len(previous_records)}</strong><span>직전 주 논문</span></div>'
+        f'<div><strong>{len(cumulative_records)}</strong><span>누적 논문</span></div>'
+        f'<div><strong>{run_count}</strong><span>수집 회차</span></div></div>'
+    )
     document = f"""<!doctype html>
     <html lang="ko">
     <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>원자력공학 최근 논문 다이제스트 · {RUN_DATE}</title>
-      <style>
-        :root {{ --navy:#102a43; --blue:#0b6bcb; --sky:#eaf4ff; --line:#d9e2ec; --ink:#243b53; --muted:#627d98; --high:#087f5b; --mid:#b35c00; }}
-        * {{ box-sizing:border-box }} body {{ margin:0;background:#f5f8fb;color:var(--ink);font-family:Arial,'Noto Sans KR',sans-serif;line-height:1.55 }}
-        .wrap {{ max-width:920px;margin:auto;padding:32px 18px 80px }}
-        header {{ background:linear-gradient(135deg,#102a43,#1668a9);color:white;border-radius:18px;padding:34px;box-shadow:0 12px 34px #102a4326 }}
-        header h1 {{ margin:0 0 10px;font-size:30px;line-height:1.25 }} header p {{ margin:5px 0;color:#d9edff }}
-        .notice {{ margin:18px 0;padding:16px 18px;border-left:5px solid #d9480f;background:#fff4e6;border-radius:8px;color:#7c2d12 }}
-        .metrics {{ display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 }}
-        .metric {{ background:white;border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center }} .metric strong {{ display:block;font-size:25px;color:var(--navy) }}
-        .panel {{ background:white;border:1px solid var(--line);border-radius:12px;padding:18px;margin:15px 0 }} .panel h2 {{ margin:0 0 10px;font-size:18px }}
-        .journal-filters {{ display:flex;flex-wrap:wrap;gap:8px }} .journal-filter {{ border:1px solid var(--line);background:#f8fafc;color:var(--ink);border-radius:999px;padding:8px 12px;cursor:pointer;font:inherit;font-size:13px }} .journal-filter:hover {{ border-color:var(--blue) }} .journal-filter.active {{ background:var(--blue);border-color:var(--blue);color:white }} .journal-filter strong {{ margin-left:4px }}
-        .tag,.type-tag,.type-summary {{ display:inline-block;margin:3px;padding:3px 8px;border-radius:999px;background:var(--sky);color:#075985;font-size:12px }} .type-tag,.type-summary {{ background:#edf2f7;color:#52677b }}
-        .bar-row {{ width:100%;display:grid;grid-template-columns:150px 1fr 32px;gap:10px;align-items:center;margin:9px 0;padding:0;border:0;background:transparent;color:inherit;font:inherit;text-align:left }} .bar-track {{ height:14px;background:#edf2f7;border-radius:4px;overflow:hidden }} .bar-fill {{ height:100%;background:#0b6bcb }} .country-fill {{ background:#087f5b }} button.bar-row {{ cursor:pointer }} button.bar-row:hover {{ background:#f8fbff }}
-        .trend-head {{ display:grid;grid-template-columns:150px 1fr 1fr 58px;gap:10px;color:var(--muted);font-size:11px;padding:0 8px 6px }} .trend-grid {{ display:grid;gap:2px }} .trend-row {{ width:100%;display:grid;grid-template-columns:150px 1fr 1fr 58px;gap:10px;align-items:center;padding:8px;border:0;border-bottom:1px solid #edf2f7;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer }} .trend-row:hover {{ background:#f8fbff }} .trend-period {{ position:relative;display:grid;grid-template-columns:1fr 30px 40px;gap:5px;align-items:center;font-size:11px }} .trend-period::before {{ content:"";position:absolute;left:0;right:75px;height:9px;background:#edf2f7 }} .trend-period i {{ height:9px;background:#9fb3c8;z-index:1 }} .trend-period.current i {{ background:var(--blue) }} .trend-period b,.trend-period small {{ z-index:1;text-align:right }} .trend-delta {{ text-align:right;font-weight:700;font-size:12px }} .trend-delta.up {{ color:#087f5b }} .trend-delta.down {{ color:#c92a2a }}
-        .keyword-grid {{ display:grid;grid-template-columns:1fr 1fr;gap:0 20px }} .keyword-item {{ display:grid;grid-template-columns:115px 1fr 25px;gap:8px;align-items:center;padding:5px 0;font-size:12px }} .keyword-track {{ height:9px;background:#edf2f7 }} .keyword-fill {{ height:100%;background:#7048e8 }}
-        .surge-grid {{ display:grid;grid-template-columns:repeat(2,1fr);gap:7px 16px }} .surge-keyword {{ display:grid;grid-template-columns:1fr auto auto;gap:8px;width:100%;padding:9px 7px;border:0;border-bottom:1px solid #edf2f7;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer }} .surge-keyword:hover {{ background:#f8fbff }} .surge-word {{ font-weight:700 }} .surge-count {{ color:var(--navy);font-size:12px }} .surge-delta {{ color:#087f5b;font-size:12px;font-weight:700 }} .surge-context {{ grid-column:1/-1;color:var(--muted);font-size:11px }}
-        .watch-grid {{ display:grid;grid-template-columns:repeat(2,1fr);gap:10px }} .watch-card {{ display:grid;grid-template-columns:1fr auto;gap:5px 10px;padding:13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit;text-align:left;cursor:pointer }} .watch-card:hover {{ border-color:var(--blue);background:#f8fbff }} .watch-name {{ font-weight:700;color:var(--navy) }} .watch-total {{ font-size:12px;color:var(--muted) }} .watch-change {{ font-size:12px }} .watch-change em {{ margin-left:8px;font-style:normal;font-weight:700 }} .watch-change em.up {{ color:#087f5b }} .watch-change em.down {{ color:#c92a2a }} .watch-change em.flat {{ color:var(--muted) }} .watch-paper {{ grid-column:1/-1;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }}
-        .timeline {{ display:flex;gap:8px;height:170px;align-items:flex-end }} .day {{ flex:1;min-width:20px;text-align:center;font-size:11px;color:var(--muted) }} .day-track {{ height:120px;background:#edf2f7;display:flex;align-items:flex-end;margin:3px 0 }} .day-fill {{ width:100%;background:#087f5b }} .day-value {{ color:var(--ink);font-weight:700 }}
-        .matrix-wrap {{ overflow-x:auto }} .matrix {{ border-collapse:collapse;width:100%;font-size:11px }} .matrix th,.matrix td {{ padding:0;border:1px solid var(--line);text-align:center }} .matrix thead th {{ padding:7px;writing-mode:vertical-rl;min-width:42px;height:125px }} .matrix tbody th {{ padding:7px;text-align:left;min-width:180px }} .matrix td {{ background:rgba(11,107,203,var(--cell-opacity)) }} .matrix-cell {{ width:100%;min-height:42px;border:0;background:transparent;color:var(--navy);cursor:pointer;font:inherit }} .matrix-cell:hover {{ outline:2px solid var(--navy);outline-offset:-2px }} .matrix-cell strong,.matrix-cell small {{ display:block }} .matrix-cell small {{ opacity:.7 }}
-        .topic-scatter {{ display:block;width:100%;height:auto }} .topic-scatter text {{ fill:var(--muted);font-size:12px }} .topic-scatter circle {{ cursor:pointer;transition:opacity .18s,r .18s }} .topic-scatter circle:hover {{ r:8;fill-opacity:1 }} .topic-scatter .cluster-label {{ fill:var(--navy);font-size:11px;font-weight:700;paint-order:stroke;stroke:#ffffff;stroke-width:4px;stroke-linejoin:round;pointer-events:none }}
-        .paper[hidden] {{ display:none }} .topic-scatter circle.is-dimmed {{ opacity:.10 }} .topic-scatter circle.is-selected {{ opacity:1;stroke:#102a43;stroke-width:1.7 }}
-        .filter-status {{ display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 0;padding:12px 14px;background:#eaf4ff;border-left:4px solid var(--blue);border-radius:7px }} .filter-status button {{ border:1px solid var(--line);background:white;border-radius:7px;padding:6px 10px;cursor:pointer }} .filter-status[hidden] {{ display:none }}
-        .scatter-legend {{ display:flex;flex-wrap:wrap;gap:8px 14px;margin-bottom:8px;font-size:12px }} .scatter-legend span {{ display:inline-flex;align-items:center;gap:5px }} .scatter-legend i {{ width:10px;height:10px;border-radius:50%;display:inline-block }} .chart-note {{ color:var(--muted);font-size:12px;margin:6px 0 0 }}
-        .paper {{ background:white;border:1px solid var(--line);border-left:5px solid #0b6bcb;border-radius:12px;padding:19px;margin:14px 0 }}
-        .paper-top {{ display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted) }} .num {{ font-weight:700;color:var(--blue) }} .journal {{ background:#edf2f7;padding:2px 7px;border-radius:5px }} .date {{ margin-left:auto }}
-        .paper h2 {{ font-size:18px;line-height:1.4;margin:10px 0 4px }} .title-ko {{ margin:0 0 8px;font-size:16px;font-weight:500;color:var(--navy);line-height:1.45 }} a {{ color:#075985;text-decoration:none }} a:hover {{ text-decoration:underline }}
-        .authors,.basis {{ color:var(--muted);font-size:12px }} .summary {{ margin:12px 0 8px }}
-        footer {{ margin-top:32px;color:var(--muted);font-size:12px;text-align:center }}
-        @media(max-width:650px) {{ .metrics {{ grid-template-columns:1fr }} header {{ padding:24px }} .date {{ margin-left:0 }} .bar-row {{ grid-template-columns:115px 1fr 28px }} .timeline {{ gap:3px }} .journal-filter {{ width:100%;text-align:left }} .keyword-grid,.surge-grid,.watch-grid {{ grid-template-columns:1fr }} .trend-head {{ display:none }} .trend-row {{ grid-template-columns:1fr }} .trend-period {{ grid-template-columns:1fr 30px 40px }} .trend-delta {{ text-align:left }} }}
-        @media print {{ body {{ background:white }} .wrap {{ max-width:none;padding:0 }} header,.paper,.panel,.metric {{ box-shadow:none;break-inside:avoid }} }}
-      </style>
+    {head_html}
     </head>
-    <body><div class="wrap">
-      <header>
-        <h1>원자력공학 최근 논문 다이제스트</h1>
-        <p>대상 기간: {PERIOD_START} ~ {PERIOD_END} · DOI 신규 등록 기준</p>
-        <p>5개 원자력공학 종합 저널 · 연구 영역 및 출판 동향</p>
-      </header>
-      <div class="notice"><strong>수록 기준:</strong> 데이터베이스에는 {run_count}회 수집분 {len(cumulative_records)}편이 DOI 기준으로 중복 없이 저장되어 있습니다. 아래 동향 지표는 누적 자료를 사용하며, 논문 목록은 최신 기간 {len(records)}편을 보여줍니다.</div>
-      <section class="metrics"><div class="metric"><strong>{len(cumulative_records)}</strong>누적 논문</div><div class="metric"><strong id="visible-count">{len(records)}</strong>최신 기간 표시 논문</div><div class="metric"><strong>{run_count}</strong>누적 수집 기간</div></section>
-      <section class="panel"><h2>저널 필터</h2><div class="journal-filters" aria-label="저널별 논문 필터">{journal_rows}</div></section>
+    <body>
+    {header_html}
+    {page_head_html}
+    <main class="page"><div class="container-page">
+      <section class="section">{stats_html}</section>
+      <section class="section sec-grid"><div class="sec-side"><p class="eyebrow">01</p><h2>저널 필터</h2></div><div class="sec-body"><div class="journal-filters" aria-label="저널별 논문 필터">{journal_rows}</div></div></section>
       <div id="filter-status" class="filter-status" aria-live="polite" hidden><span id="filter-label"></span><button type="button" id="reset-filter">필터 초기화</button></div>
-      <section class="panel"><h2>문서 유형</h2><div>{type_rows}</div></section>
-      <section class="panel"><h2>연구 영역 분포</h2>{area_bars}</section>
-      <section class="panel"><h2>국가별 논문 분포</h2>{country_bars}<p class="chart-note">이번 주 {len(records)}편 중 소속 국가를 확인한 논문은 {country_coverage}편입니다. 막대를 누르면 해당 국가의 논문만 표시합니다.</p></section>
-      <section class="panel"><h2>저널 × 국가 히트맵</h2>{country_matrix_html}</section>
-      <section class="panel"><h2>제목 기반 연구 토픽 지도</h2>{scatter_html}</section>
-      <section class="panel"><h2>주간 연구 토픽 추세</h2><div class="trend-head"><span>토픽</span><span>{PREVIOUS_START[5:]}–{PREVIOUS_END[5:]} · {len(previous_records)}편</span><span>{PERIOD_START[5:]}–{PERIOD_END[5:]} · {len(records)}편</span><span>비중 변화</span></div><div class="trend-grid">{trend_rows}</div><p class="chart-note">주별 전체 논문 수가 다르므로 건수와 함께 점유율 변화를 표시합니다. 행을 누르면 최신 논문을 필터링합니다.</p></section>
-      <section class="panel"><h2>급상승 연구 키워드</h2><div class="surge-grid">{emerging_keyword_html}</div><p class="chart-note">제목·공개 초록에서 기간별 100편당 출현 빈도가 증가한 단어와 구문입니다. 키워드를 누르면 최신 관련 논문만 표시합니다.</p></section>
-      <section class="panel"><h2>연구실 관심 분야 추적기</h2><div class="watch-grid">{watchlist_html}</div><p class="chart-note">누적 건수와 직전 주→현재 주 변화를 함께 표시합니다. 항목을 누르면 관련 최신 논문으로 이동합니다.</p></section>
-      <section class="panel"><h2>상위 연구 키워드</h2><div class="keyword-grid">{keyword_bars}</div></section>
-      <section class="panel"><h2>최근 1주 DOI 등록 추이</h2><div class="timeline" role="img" aria-label="{PERIOD_START}부터 {PERIOD_END}까지 일별 DOI 등록 논문 수">{timeline_bars}</div></section>
-      <section class="panel"><h2>저널 × 연구 토픽 히트맵</h2>{matrix_html}</section>
-      <main id="papers">{''.join(cards)}</main>
-      <footer>수집 기준: Crossref DOI created date. 권호일·온라인 공개일과 다를 수 있으므로 각 카드에 별도 표기했습니다.</footer>
-    </div>
+      <section class="section sec-grid"><div class="sec-side"><p class="eyebrow">02</p><h2>문서 유형</h2></div><div class="sec-body"><div>{type_rows}</div></div></section>
+      <section class="section sec-grid"><div class="sec-side"><p class="eyebrow">03</p><h2>연구 영역 분포</h2></div><div class="sec-body">{area_bars}</div></section>
+      <section class="section sec-grid"><div class="sec-side"><p class="eyebrow">04</p><h2>국가별 논문 분포</h2></div><div class="sec-body">{country_bars}<p class="chart-note">이번 주 {len(records)}편 중 소속 국가를 확인한 논문은 {country_coverage}편입니다. 막대를 누르면 해당 국가의 논문만 표시합니다.</p></div></section>
+      <section class="section sec-grid"><div class="sec-side"><p class="eyebrow">05</p><h2>저널 × 국가 히트맵</h2></div><div class="sec-body">{country_matrix_html}</div></section>
+      <section class="section sec-grid"><div class="sec-side"><p class="eyebrow">06</p><h2>제목 기반 연구 토픽 지도</h2></div><div class="sec-body">{scatter_html}</div></section>
+      <section class="section sec-grid"><div class="sec-side"><p class="eyebrow">07</p><h2>주간 연구 토픽 추세</h2></div><div class="sec-body"><div class="trend-head"><span>토픽</span><span>{PREVIOUS_START[5:]}–{PREVIOUS_END[5:]} · {len(previous_records)}편</span><span>{PERIOD_START[5:]}–{PERIOD_END[5:]} · {len(records)}편</span><span>비중 변화</span></div><div class="trend-grid">{trend_rows}</div><p class="chart-note">주별 전체 논문 수가 다르므로 건수와 함께 점유율 변화를 표시합니다. 행을 누르면 최신 논문을 필터링합니다.</p></div></section>
+      <section class="section sec-grid"><div class="sec-side"><p class="eyebrow">08</p><h2>급상승 연구 키워드</h2></div><div class="sec-body"><div class="surge-grid">{emerging_keyword_html}</div><p class="chart-note">제목·공개 초록에서 기간별 100편당 출현 빈도가 증가한 단어와 구문입니다. 키워드를 누르면 최신 관련 논문만 표시합니다.</p></div></section>
+      <section class="section sec-grid"><div class="sec-side"><p class="eyebrow">09</p><h2>연구실 관심 분야 추적기</h2></div><div class="sec-body"><div class="watch-grid">{watchlist_html}</div><p class="chart-note">누적 건수와 직전 주→현재 주 변화를 함께 표시합니다. 항목을 누르면 관련 최신 논문으로 이동합니다.</p></div></section>
+      <section class="section sec-grid"><div class="sec-side"><p class="eyebrow">10</p><h2>상위 연구 키워드</h2></div><div class="sec-body"><div class="keyword-grid">{keyword_bars}</div></div></section>
+      <section class="section sec-grid"><div class="sec-side"><p class="eyebrow">11</p><h2>최근 1주 DOI 등록 추이</h2></div><div class="sec-body"><div class="timeline" role="img" aria-label="{PERIOD_START}부터 {PERIOD_END}까지 일별 DOI 등록 논문 수">{timeline_bars}</div></div></section>
+      <section class="section sec-grid"><div class="sec-side"><p class="eyebrow">12</p><h2>저널 × 연구 토픽 히트맵</h2></div><div class="sec-body">{matrix_html}</div></section>
+      <section class="section sec-grid" id="paper-list"><div class="sec-side"><p class="eyebrow eyebrow-mark eyebrow-accent">Papers</p><h2>이번 주 논문</h2>
+        <p class="note">제목은 DOI(출판사) 페이지로 연결됩니다. 위의 그래프·표를 누르면 해당 조건의 논문만 남습니다. 날짜는 Crossref DOI 등록일이며 온라인 공개일·권호일과 다를 수 있습니다.</p></div>
+        <div class="sec-body" id="papers">{''.join(cards)}</div></section>
+    </div></main>
+    {site_theme.site_footer()}
     <script>
     (() => {{
       const buttons = [...document.querySelectorAll('.journal-filter')];
