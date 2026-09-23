@@ -1,0 +1,304 @@
+{
+  "recipients": [
+    "hysms@hanyang.ac.kr"
+  ],
+  "email_subject": "[원자력 문헌 다이제스트] {run_date} 주간 업데이트",
+  "dashboard_url": "",
+  "contact_email": "hysms@hanyang.ac.kr",
+  "journals": {
+    "Nuclear Engineering and Design": "0029-5493",
+    "Annals of Nuclear Energy": "0306-4549",
+    "Nuclear Engineering and Technology": "1738-5733",
+    "Progress in Nuclear Energy": "0149-1970",
+    "Nuclear Technology": "0029-5450"
+  },
+  "topics": {
+    "열수력·유체": [
+      "flow",
+      "thermal",
+      "heat",
+      "boiling",
+      "condensation",
+      "coolant",
+      "hydraulic",
+      "fluid",
+      "turbulence",
+      "pressure drop",
+      "void fraction",
+      "pump"
+    ],
+    "원자로물리·해석": [
+      "neutron",
+      "reactor physics",
+      "core analysis",
+      "criticality",
+      "monte carlo",
+      "geant4",
+      "cross section",
+      "burnup",
+      "kinetics"
+    ],
+    "안전·사고·리스크": [
+      "safety",
+      "accident",
+      "risk",
+      "loca",
+      "tsunami",
+      "reliability",
+      "severe",
+      "emergency",
+      "hazard"
+    ],
+    "핵연료·재료": [
+      "fuel",
+      "cladding",
+      "material",
+      "irradiation",
+      "steel",
+      "zircon",
+      "alloy",
+      "corrosion",
+      "defect",
+      "composite"
+    ],
+    "AI·디지털": [
+      "machine learning",
+      "deep learning",
+      "neural",
+      "artificial intelligence",
+      "ai-driven",
+      "reinforcement learning",
+      "physics-informed",
+      "digital twin",
+      "surrogate",
+      "reduced-order",
+      "reduced order",
+      "cnn",
+      "lstm"
+    ],
+    "방사선·계측": [
+      "radiation",
+      "detector",
+      "dosim",
+      "shield",
+      "source localization",
+      "spectr",
+      "instrument",
+      "measurement",
+      "magnet"
+    ],
+    "핵연료주기·폐기물": [
+      "waste",
+      "spent fuel",
+      "fuel cycle",
+      "pyroprocessing",
+      "decommission",
+      "disposal",
+      "incineration",
+      "storage"
+    ],
+    "설계·운전·경제": [
+      "design",
+      "operation",
+      "maintenance",
+      "economic",
+      "cost",
+      "control room",
+      "optimization",
+      "management",
+      "policy",
+      "sociotechnical"
+    ]
+  },
+  "fallback_topic": "기타 원자력",
+  "watchlists": {
+    "열수력": [
+      "thermal",
+      "hydraulic",
+      "heat transfer",
+      "coolant",
+      "fluid",
+      "flow"
+    ],
+    "다상유동·비등": [
+      "multiphase",
+      "two-phase",
+      "two phase",
+      "boiling",
+      "bubble",
+      "void fraction",
+      "critical heat flux",
+      "chf",
+      "condensation"
+    ],
+    "유동가시화": [
+      "flow visualization",
+      "visualization",
+      "tomography",
+      "particle image",
+      "piv",
+      "x-ray",
+      "high-speed imaging",
+      "image-based"
+    ],
+    "안전·사고해석": [
+      "safety",
+      "accident",
+      "loca",
+      "severe accident",
+      "risk",
+      "emergency",
+      "hazard"
+    ],
+    "원자로물리": [
+      "neutron",
+      "reactor physics",
+      "core analysis",
+      "criticality",
+      "monte carlo",
+      "cross section",
+      "burnup",
+      "kinetics"
+    ],
+    "핵연료·재료": [
+      "fuel",
+      "cladding",
+      "material",
+      "irradiation",
+      "steel",
+      "zircon",
+      "alloy",
+      "corrosion"
+    ],
+    "Machine Learning": [
+      "machine learning",
+      "deep learning",
+      "neural",
+      "artificial intelligence",
+      "reinforcement learning",
+      "cnn",
+      "lstm",
+      "ai-driven"
+    ],
+    "Digital Twin·PINN": [
+      "digital twin",
+      "physics-informed",
+      "pinn",
+      "surrogate",
+      "reduced-order",
+      "reduced order"
+    ]
+  },
+  "document_types": {
+    "정오표": {
+      "contains": [
+        "corrigendum",
+        "erratum"
+      ]
+    },
+    "편집물": {
+      "equals": [
+        "editorial board"
+      ],
+      "startswith": [
+        "introduction:",
+        "editorial"
+      ]
+    },
+    "리뷰·관점": {
+      "contains": [
+        "review",
+        "recent progress",
+        "perspective",
+        "retrospective"
+      ]
+    }
+  },
+  "default_document_type": "연구논문",
+  "country_names": {
+    "AE": "아랍에미리트",
+    "AU": "호주",
+    "BD": "방글라데시",
+    "BE": "벨기에",
+    "BR": "브라질",
+    "CA": "캐나다",
+    "CN": "중국",
+    "CZ": "체코",
+    "DE": "독일",
+    "EG": "이집트",
+    "ES": "스페인",
+    "FR": "프랑스",
+    "GB": "영국",
+    "GH": "가나",
+    "GR": "그리스",
+    "HK": "홍콩",
+    "HU": "헝가리",
+    "ID": "인도네시아",
+    "IN": "인도",
+    "IQ": "이라크",
+    "IR": "이란",
+    "IT": "이탈리아",
+    "JO": "요르단",
+    "JP": "일본",
+    "KR": "대한민국",
+    "LB": "레바논",
+    "LT": "리투아니아",
+    "MA": "모로코",
+    "MN": "몽골",
+    "MX": "멕시코",
+    "MY": "말레이시아",
+    "NL": "네덜란드",
+    "PE": "페루",
+    "PK": "파키스탄",
+    "PL": "폴란드",
+    "PT": "포르투갈",
+    "RO": "루마니아",
+    "RS": "세르비아",
+    "RU": "러시아",
+    "SA": "사우디아라비아",
+    "SD": "수단",
+    "SE": "스웨덴",
+    "SG": "싱가포르",
+    "SI": "슬로베니아",
+    "TR": "튀르키예",
+    "TW": "대만",
+    "UA": "우크라이나",
+    "US": "미국",
+    "VN": "베트남",
+    "YE": "예멘",
+    "ZA": "남아프리카공화국",
+    "ZM": "잠비아"
+  },
+  "translation_glossary": {
+    "thermal-hydraulic": "열수력",
+    "thermal hydraulic": "열수력",
+    "thermal-hydraulics": "열수력",
+    "pebble bed": "페블베드",
+    "multiphysics": "다중물리",
+    "critical heat flux": "임계열유속(CHF)",
+    "void fraction": "기포율",
+    "two-phase flow": "2상유동",
+    "loss-of-coolant accident": "냉각재상실사고(LOCA)",
+    "severe accident": "중대사고",
+    "molten salt reactor": "용융염원자로(MSR)",
+    "heat pipe": "히트파이프",
+    "burnup": "연소도",
+    "cladding": "피복관",
+    "fuel assembly": "핵연료집합체",
+    "small modular reactor": "소형모듈원자로(SMR)",
+    "microreactor": "초소형원자로",
+    "sodium-cooled fast reactor": "소듐냉각고속로(SFR)",
+    "high-temperature gas-cooled reactor": "고온가스로(HTGR)",
+    "passive": "피동",
+    "containment": "격납건물",
+    "reactor pressure vessel": "원자로압력용기(RPV)",
+    "steam generator": "증기발생기",
+    "subchannel": "부수로",
+    "CFD": "CFD",
+    "PIV": "PIV",
+    "Monte Carlo": "몬테카를로",
+    "neutronics": "중성자 해석",
+    "decay heat": "붕괴열",
+    "spent fuel": "사용후핵연료"
+  }
+}

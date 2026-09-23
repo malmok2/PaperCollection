@@ -1,0 +1,20 @@
+{
+  "run_date": "2026-09-14",
+  "period_start": "2026-09-07",
+  "period_end": "2026-09-13",
+  "started_at": "2026-09-23T09:54:21+09:00",
+  "status": "success",
+  "article_count": 55,
+  "previous_count": 52,
+  "total_papers": 344,
+  "total_runs": 4,
+  "integrity": "ok",
+  "email": "disabled (--no-email)",
+  "recipients": [
+    "hysms@hanyang.ac.kr"
+  ],
+  "dashboard_url": "",
+  "email_path": "outputs/email-2026-09-14.html",
+  "excel_path": "outputs/nuclear-literature-database.xlsx",
+  "finished_at": "2026-09-23T09:54:21+09:00"
+}
