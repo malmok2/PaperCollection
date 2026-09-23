@@ -54,21 +54,23 @@ def backfill_new_journals(con):
     """A journal added to config/settings.json is collected for every period already in the DB,
     so weekly trends never compare weeks with different journal sets."""
     covered = read_json(JOURNALS_PATH, None)
-    configured = list(SETTINGS["journals"])
+    # Coverage is keyed by name + ISSNs, so adding an ISSN to an existing journal also triggers a backfill.
+    configured = [f"{name} [{issns}]" for name, issns in SETTINGS["journals"].items()]
     if covered is None:  # first run with this feature: everything configured so far is complete
         write_json(JOURNALS_PATH, configured)
         return
-    new = [name for name in configured if name not in covered]
-    if not new:
+    new_keys = [key for key in configured if key not in covered]
+    if not new_keys:
         return
+    new = [key.split(" [")[0] for key in new_keys]
     runs = con.execute("SELECT run_id, period_start, period_end FROM collection_runs ORDER BY run_id").fetchall()
     for run in runs:
         period = Period(date.fromisoformat(run["run_id"]))
         records = collect.collect(period, journals=new, start=run["period_start"], end=run["period_end"])
         translate.translate_records(records)
-        found, added = database.upsert_run(con, period, records, additive=True)
+        found, added = database.upsert_run(con, period, records, additive=True)  # only newly found papers are added to the run counts
         log("journal-backfill", run_id=run["run_id"], journals=new, found=found, new=added)
-    write_json(JOURNALS_PATH, covered + new)
+    write_json(JOURNALS_PATH, [key for key in covered if key in configured] + new_keys)
 
 
 def build_outputs(con, period):

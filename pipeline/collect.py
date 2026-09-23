@@ -118,10 +118,13 @@ def collect(period: Period, journals=None, start=None, end=None):
     """journals: subset of SETTINGS["journals"] names (default all). start/end override the period window."""
     start, end = start or period.start.isoformat(), end or period.end.isoformat()
     records = {}
-    for journal, issn in SETTINGS["journals"].items():
+    for journal, issns in SETTINGS["journals"].items():
         if journals and journal not in journals:
             continue
-        for item in crossref_items(issn, start, end):
+        # A journal may list print and electronic ISSNs ("print,electronic"); both are queried, DOIs deduplicated.
+        issn = issns.split(",")[0].strip()
+        items = [item for value in issns.split(",") for item in crossref_items(value.strip(), start, end)]
+        for item in items:
             registered = (item.get("created") or {}).get("date-time", "")[:10]
             doi = (item.get("DOI") or "").lower()
             if not doi or not start <= registered <= end:

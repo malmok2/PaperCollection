@@ -157,8 +157,8 @@ def upsert_run(con, period, records, additive=False):
         new = after - before
         if additive:
             con.execute(
-                "UPDATE collection_runs SET found_count=found_count+?,new_count=new_count+?,updated_count=updated_count+? WHERE run_id=?",
-                (len(records), new, len(records) - new, run_id),
+                "UPDATE collection_runs SET found_count=found_count+?,new_count=new_count+? WHERE run_id=?",
+                (new, new, run_id),
             )
         else:
             con.execute(
