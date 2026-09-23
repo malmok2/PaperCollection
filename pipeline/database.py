@@ -198,3 +198,11 @@ def as_record(row):
     record["abstract"] = record.get("abstract") or ""
     record["abstract_source"] = record.get("abstract_source") or ""
     return record
+
+
+def sync_titles(con, cache):
+    """Push the (possibly corrected) translation cache into papers.title_ko."""
+    with con:
+        for doi, entry in cache.items():
+            if entry.get("ko"):
+                con.execute("UPDATE papers SET title_ko=? WHERE doi=? AND IFNULL(title_ko,'')<>?", (entry["ko"], doi, entry["ko"]))

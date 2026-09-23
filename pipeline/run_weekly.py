@@ -86,6 +86,7 @@ def main():
         if not args.skip_collect:
             for week in weeks_to_collect(con, period, args.max_backfill):
                 collect_week(con, week)
+        database.sync_titles(con, translate.load_cache())
         integrity = database.validate(con)
         result = build_outputs(con, period)
         con.close()

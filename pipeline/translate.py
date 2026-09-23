@@ -17,7 +17,12 @@ BATCH = 40
 
 def load_cache():
     cache = read_json(TRANSLATIONS_PATH, {}) or {}
-    return {doi: (v if isinstance(v, dict) else {"ko": v, "engine": "mymemory"}) for doi, v in cache.items()}
+    cache = {doi: (v if isinstance(v, dict) else {"ko": v, "engine": "mymemory"}) for doi, v in cache.items()}
+    # Re-apply the correction table so newly added rules also fix earlier machine translations.
+    for entry in cache.values():
+        if entry["engine"] == "mymemory":
+            entry["ko"] = postfix(entry["ko"])
+    return cache
 
 
 def claude_translate(titles):
