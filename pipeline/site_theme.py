@@ -120,6 +120,7 @@ main.page{padding:2.5rem 0 5rem}
 .chip.active,.chip[aria-pressed="true"]{background:var(--color-navy);border-color:var(--color-navy);color:#fff}
 :root[data-theme="dark"] .chip.active,:root[data-theme="dark"] .chip[aria-pressed="true"]{background:var(--color-ink);border-color:var(--color-ink);color:var(--color-canvas)}
 .chip strong{font-weight:600;font-variant-numeric:tabular-nums}
+.chip[disabled]{opacity:.45;cursor:default}.chip[disabled]:hover{border-color:var(--color-line);color:var(--color-neutral-700)}
 .btn{display:inline-flex;align-items:center;border:1px solid var(--color-line);background:var(--color-card);color:var(--color-neutral-700);
   padding:.55rem .85rem;font:inherit;font-size:.8125rem;cursor:pointer}
 .btn:hover{border-color:var(--color-line-strong);color:var(--color-neutral-900)}

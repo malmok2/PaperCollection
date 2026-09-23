@@ -66,7 +66,9 @@ def render(period, records, previous_records, cumulative_records, run_count, nav
         record["summary"] = ""
         record["summary_basis"] = f"{record['abstract_source']} Abstract 확인" if record.get("abstract") else "제목·서지정보 확인"
 
-    by_journal = Counter(record["journal"] for record in records)
+    # Every configured journal is listed, including ones with no papers this week (shown as 0).
+    by_journal = Counter({name: 0 for name in SETTINGS["journals"]})
+    by_journal.update(record["journal"] for record in records)
     area_counts = Counter(record["primary_area"] for record in records)
     date_counts = Counter(record["registered_date"] for record in records)
     previous_area_counts = Counter(topics_for(record)[0] for record in previous_records)
@@ -187,8 +189,8 @@ def render(period, records, previous_records, cumulative_records, run_count, nav
           </article>""")
 
     journal_rows = f'<button type="button" class="chip journal-filter active" data-journal="all" aria-pressed="true">전체 <strong>{len(records)}</strong></button>' + "".join(
-        f'<button type="button" class="chip journal-filter" data-journal="{esc(name)}" aria-pressed="false"><span>{esc(name)}</span> <strong>{count}</strong></button>'
-        for name, count in by_journal.items()
+        f'<button type="button" class="chip journal-filter" data-journal="{esc(name)}" aria-pressed="false"{" disabled" if not count else ""}><span>{esc(name)}</span> <strong>{count}</strong></button>'
+        for name, count in by_journal.most_common()
     )
     type_rows = "".join(f'<span class="type-summary"><strong>{esc(name)}</strong> {count}</span>' for name, count in type_counts.items())
     max_area = max(area_counts.values())

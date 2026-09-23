@@ -13,7 +13,8 @@ def render(period, records, previous_records, total_papers, total_runs):
     fallback = SETTINGS["fallback_topic"]
     current_topics = Counter(topics_for(r)[0] for r in records)
     previous_topics = Counter(topics_for(r)[0] for r in previous_records)
-    journals = Counter(r["journal"] for r in records)
+    journals = Counter({name: 0 for name in SETTINGS["journals"]})
+    journals.update(r["journal"] for r in records)
     all_topics = sorted(set(current_topics) | set(previous_topics), key=lambda t: (-current_topics[t], -previous_topics[t], t == fallback, t))
 
     def delta_cell(delta):
