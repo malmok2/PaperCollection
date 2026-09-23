@@ -45,7 +45,7 @@ GitHub 저장소 → **Settings → Secrets and variables → Actions** 에서 �
 
 ## 3. 대시보드 공개 방식
 
-대시보드는 `docs/index.html` 단일 파일(외부 라이브러리 없음)입니다. 공개 방법은 다음 중 하나를 고릅니다.
+대시보드는 `docs/index.html` 단일 파일(외부 라이브러리 없음)입니다.
 
 **GitHub Pages**(공개 저장소)로 게시합니다: <https://malmok2.github.io/PaperCollection/>
 설정: Settings → Pages → Source: *GitHub Actions*. 매 실행 후 자동 재배포되며, 지난 회차는 `archive/날짜.html`에 남습니다.
