@@ -30,9 +30,8 @@ GitHub 저장소 → **Settings → Secrets and variables → Actions** 에서 �
 | Secret | `SMTP_PASSWORD` | Gmail **앱 비밀번호** 16자리 (아래 참고) | 메일 발송 시 |
 | Secret | `ANTHROPIC_API_KEY` | Claude API 키 — 제목 번역 품질 향상 | 선택 (권장) |
 | Secret | `ELSEVIER_API_KEY` | Elsevier 개발자 키 — ScienceDirect 링크/PII 보강 | 선택 |
-| Variable | `DASHBOARD_URL` | 공개 대시보드 주소 (메일의 "대시보드 열기" 버튼) | 선택 |
+| Variable | `DASHBOARD_URL` | 대시보드 주소를 바꿀 때만 (기본값: https://malmok2.github.io/PaperCollection/) | 선택 |
 | Variable | `DIGEST_RECIPIENTS` | 수신자, 쉼표 구분 (기본값: `config/settings.json`) | 선택 |
-| Variable | `ENABLE_PAGES` | `true` 로 두면 GitHub Pages에 대시보드 게시 | 선택 |
 
 **Gmail 앱 비밀번호 만들기**: Google 계정 → 보안 → 2단계 인증 켜기 → "앱 비밀번호" 검색 → 이름 입력(예: digest) → 생성된 16자리 복사.
 (일반 비밀번호는 SMTP 로그인에 쓸 수 없습니다.)
@@ -48,9 +47,8 @@ GitHub 저장소 → **Settings → Secrets and variables → Actions** 에서 �
 
 대시보드는 `docs/index.html` 단일 파일(외부 라이브러리 없음)입니다. 공개 방법은 다음 중 하나를 고릅니다.
 
-1. **GitHub Pages** — 저장소를 public으로 바꾸거나(무료) GitHub Pro 사용 → Settings → Pages → Source: *GitHub Actions* → Variable `ENABLE_PAGES=true`, `DASHBOARD_URL=https://<계정>.github.io/<저장소>/`
-2. **Cloudflare Pages / Netlify** — `docs/` 폴더를 연결하면 저장소가 private이어도 공개 URL 가능
-3. 공개하지 않음 — 메일에 버튼이 표시되지 않으며, 대시보드는 저장소에서 내려받아 확인
+**GitHub Pages**(공개 저장소)로 게시합니다: <https://malmok2.github.io/PaperCollection/>
+설정: Settings → Pages → Source: *GitHub Actions*. 매 실행 후 자동 재배포되며, 지난 회차는 `archive/날짜.html`에 남습니다.
 
 기존 `nuclear-literature-dashboard.ssrmin.chatgpt.site`는 Codex 전용 호스팅이라 여기서 갱신할 수 없습니다.
 

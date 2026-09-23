@@ -2,7 +2,7 @@
   "run_date": "2026-09-14",
   "period_start": "2026-09-07",
   "period_end": "2026-09-13",
-  "started_at": "2026-09-23T09:59:18+09:00",
+  "started_at": "2026-09-23T10:02:43+09:00",
   "status": "success",
   "article_count": 55,
   "previous_count": 52,
@@ -13,8 +13,8 @@
   "recipients": [
     "hysms@hanyang.ac.kr"
   ],
-  "dashboard_url": "",
+  "dashboard_url": "https://malmok2.github.io/PaperCollection/",
   "email_path": "outputs/email-2026-09-14.html",
   "excel_path": "outputs/nuclear-literature-database.xlsx",
-  "finished_at": "2026-09-23T09:59:18+09:00"
+  "finished_at": "2026-09-23T10:02:44+09:00"
 }

@@ -3,7 +3,7 @@
     "hysms@hanyang.ac.kr"
   ],
   "email_subject": "[원자력 문헌 다이제스트] {run_date} 주간 업데이트",
-  "dashboard_url": "",
+  "dashboard_url": "https://malmok2.github.io/PaperCollection/",
   "contact_email": "hysms@hanyang.ac.kr",
   "journals": {
     "Nuclear Engineering and Design": "0029-5493",
