@@ -16,7 +16,7 @@ ChatGPT/Codex에서 운영하던 시스템(`legacy/codex-handoff/`)을 GitHub Ac
   ├─ 메일 발송 (Gmail SMTP, 인라인 HTML, UTF-8) — 같은 주 중복 발송 방지
   └─ 결과를 저장소에 커밋 (git 이력 = 회차별 백업)
 월 12:00 KST 재시도 — 오전 실행이 실패했을 때만 다시 수행
-실패 시 → 성공 메일 대신 "실패 알림" 메일 + GitHub 자체 실패 알림
+실패 시 → GitHub가 계정 메일로 실패 알림 발송 (SMTP 설정 시 별도 실패 알림 메일도 발송)
 놓친 주가 있으면 → 다음 실행 때 빠진 주를 자동으로 먼저 수집(backfill)
 ```
 
@@ -26,8 +26,8 @@ GitHub 저장소 → **Settings → Secrets and variables → Actions** 에서 �
 
 | 종류 | 이름 | 값 | 필수 |
 |---|---|---|---|
-| Secret | `SMTP_USER` | 발송용 Gmail 주소 (예: `ssrmin@gmail.com`) | 메일 발송 시 |
-| Secret | `SMTP_PASSWORD` | Gmail **앱 비밀번호** 16자리 (아래 참고) | 메일 발송 시 |
+| Secret | `SMTP_USER` | 발송용 Gmail 주소 — 등록하지 않으면 메일 없이 대시보드만 갱신 | 선택 |
+| Secret | `SMTP_PASSWORD` | Gmail **앱 비밀번호** 16자리 (아래 참고) | 선택 |
 | Secret | `ANTHROPIC_API_KEY` | Claude API 키 — 제목 번역 품질 향상 | 선택 (권장) |
 | Secret | `ELSEVIER_API_KEY` | Elsevier 개발자 키 — ScienceDirect 링크/PII 보강 | 선택 |
 | Variable | `DASHBOARD_URL` | 대시보드 주소를 바꿀 때만 (기본값: https://malmok2.github.io/PaperCollection/) | 선택 |

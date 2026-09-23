@@ -58,7 +58,7 @@ jobs:
         id: guard
         run: |
           monday=$(python -c "from datetime import date,timedelta; d=date.today(); print(d-timedelta(days=d.weekday()))")
-          done=$(python -c "import json,sys; s=json.load(open('state/latest-run.json')); print(int(s.get('status')=='success' and s.get('run_date')=='$monday' and s.get('email','').startswith(('sent','skipped: already'))))" 2>/dev/null || echo 0)
+          done=$(python -c "import json,sys; s=json.load(open('state/latest-run.json')); print(int(s.get('status')=='success' and s.get('run_date')=='$monday'))" 2>/dev/null || echo 0)
           if [ "${{ github.event_name }}" = "schedule" ] && [ "$done" = "1" ]; then echo "skip=true" >> "$GITHUB_OUTPUT"; else echo "skip=false" >> "$GITHUB_OUTPUT"; fi
 
       - name: Run pipeline
