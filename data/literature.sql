@@ -10,11 +10,11 @@ CREATE TABLE collection_runs (
   error_count INTEGER NOT NULL,
   source_note TEXT
 );
-INSERT INTO "collection_runs" VALUES('2026-09-14','2026-09-07','2026-09-13','2026-09-23T15:06:35',55,55,0,0,'Crossref DOI created date; weekly window; OpenAlex countries/abstracts');
-INSERT INTO "collection_runs" VALUES('2026-09-07','2026-08-31','2026-09-06','2026-09-23T15:06:34',53,1,52,0,'Crossref DOI created date; weekly window; OpenAlex countries/abstracts');
-INSERT INTO "collection_runs" VALUES('2026-08-30','2026-08-17','2026-08-30','2026-09-23T15:06:31',109,109,0,0,'Crossref DOI created date; weekly window; OpenAlex countries/abstracts');
-INSERT INTO "collection_runs" VALUES('2026-08-16','2026-08-03','2026-08-16','2026-09-23T15:06:28',135,135,0,0,'Crossref DOI created date; weekly window; OpenAlex countries/abstracts');
-INSERT INTO "collection_runs" VALUES('2026-09-21','2026-09-14','2026-09-20','2026-09-23T15:06:58',67,0,67,0,'Crossref DOI created date; weekly window; OpenAlex countries/abstracts');
+INSERT INTO "collection_runs" VALUES('2026-09-14','2026-09-07','2026-09-13','2026-09-23T15:09:45',55,55,0,0,'Crossref DOI created date; weekly window; OpenAlex countries/abstracts');
+INSERT INTO "collection_runs" VALUES('2026-09-07','2026-08-31','2026-09-06','2026-09-23T15:09:43',53,1,52,0,'Crossref DOI created date; weekly window; OpenAlex countries/abstracts');
+INSERT INTO "collection_runs" VALUES('2026-08-30','2026-08-17','2026-08-30','2026-09-23T15:09:39',109,109,0,0,'Crossref DOI created date; weekly window; OpenAlex countries/abstracts');
+INSERT INTO "collection_runs" VALUES('2026-08-16','2026-08-03','2026-08-16','2026-09-23T15:09:33',135,135,0,0,'Crossref DOI created date; weekly window; OpenAlex countries/abstracts');
+INSERT INTO "collection_runs" VALUES('2026-09-21','2026-09-14','2026-09-20','2026-09-23T15:10:16',67,0,67,0,'Crossref DOI created date; weekly window; OpenAlex countries/abstracts');
 CREATE TABLE paper_runs (
   doi TEXT NOT NULL REFERENCES papers(doi),
   run_id TEXT NOT NULL REFERENCES collection_runs(run_id),
