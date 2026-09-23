@@ -14,7 +14,7 @@ INSERT INTO "collection_runs" VALUES('2026-09-14','2026-09-07','2026-09-13','202
 INSERT INTO "collection_runs" VALUES('2026-09-07','2026-08-31','2026-09-06','2026-09-18T04:05:05',52,0,52,0,'Crossref DOI created date; five target journals; weekly window');
 INSERT INTO "collection_runs" VALUES('2026-08-30','2026-08-17','2026-08-30','2026-08-30T19:26:38',108,108,0,0,'Crossref DOI created date; five target journals');
 INSERT INTO "collection_runs" VALUES('2026-08-16','2026-08-03','2026-08-16','2026-08-30T19:26:38',129,129,0,0,'Crossref DOI created date; five target journals');
-INSERT INTO "collection_runs" VALUES('2026-09-21','2026-09-14','2026-09-20','2026-09-23T10:25:49',67,0,67,0,'Crossref DOI created date; weekly window; OpenAlex countries/abstracts');
+INSERT INTO "collection_runs" VALUES('2026-09-21','2026-09-14','2026-09-20','2026-09-23T10:29:50',67,0,67,0,'Crossref DOI created date; weekly window; OpenAlex countries/abstracts');
 CREATE TABLE paper_runs (
   doi TEXT NOT NULL REFERENCES papers(doi),
   run_id TEXT NOT NULL REFERENCES collection_runs(run_id),
