@@ -1,7 +1,7 @@
 """Korean title translation with a DOI-keyed cache.
 
-Engine order: cache -> Claude API (if ANTHROPIC_API_KEY is set) -> MyMemory (free, lower quality).
-A failed translation never stops the pipeline; the English title is shown instead and retried next run.
+Engine order: cache -> Claude API (if ANTHROPIC_API_KEY is set) -> MyMemory (free) + term post-correction.
+A failed translation never stops the pipeline; the English title is shown instead.
 """
 import json
 import os
@@ -77,7 +77,14 @@ def mymemory_translate(title):
     payload = response.json()
     if str(payload.get("responseStatus")) != "200":
         raise RuntimeError(payload.get("responseDetails", "MyMemory error"))
-    return (payload.get("responseData", {}).get("translatedText") or "").replace("¶", "").strip()
+    return postfix((payload.get("responseData", {}).get("translatedText") or "").strip())
+
+
+def postfix(text):
+    """Correct recurring machine-translation term errors (config: translation_postfix)."""
+    for wrong, right in SETTINGS.get("translation_postfix", {}).items():
+        text = text.replace(wrong, right)
+    return " ".join(text.split())
 
 
 def translate_records(records, retranslate_engines=()):
