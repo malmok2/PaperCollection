@@ -10,7 +10,7 @@ ChatGPT/Codex에서 운영하던 시스템(`legacy/codex-handoff/`)을 GitHub Ac
   ├─ Crossref: 지난주(월~일) DOI 신규 등록 논문 수집
   ├─ OpenAlex: 저자 소속 국가, Open Access 여부, 초록(있는 경우)
   ├─ 제목 한글 번역 (Claude API → 없으면 MyMemory)          ※ DOI별 캐시
-  ├─ SQLite 누적 DB 갱신 (data/literature.sqlite, DOI 중복 제거)
+  ├─ SQLite 누적 DB 갱신 (DOI 중복 제거) → data/literature.sql(텍스트)로 저장
   ├─ 대시보드 HTML (docs/index.html, docs/archive/날짜.html)
   ├─ 메일 본문 HTML (outputs/email-날짜.html) + Excel (outputs/…xlsx)
   ├─ 메일 발송 (Gmail SMTP, 인라인 HTML, UTF-8) — 같은 주 중복 발송 방지
@@ -81,11 +81,12 @@ python -m pipeline.send_email --test                  # 한글 인코딩 테스�
 ```
 config/settings.json        설정 (저널, 토픽, 관심분야, 수신자, 용어집)
 pipeline/                   파이프라인 코드 (run_weekly.py가 진입점)
-data/literature.sqlite      누적 DB (운영본; 백업은 git 이력)
+data/literature.sql         누적 DB (SQL 텍스트, git에 저장 — 변경분만 기록되어 저장소가 커지지 않음)
+                            실행 시 data/literature.sqlite로 자동 복원 (git 제외)
 data/translations_ko.json   DOI별 한글 제목 캐시
 data/raw/                   회차별 수집 원자료
 docs/                       공개 사이트: index.html(이번 주 동향), database.html(누적 DB 검색), archive/(회차별), Excel
-outputs/                    메일 HTML, Excel
+outputs/                    메일 HTML (Excel은 매 실행 시 생성해 사이트에만 게시, git 제외)
 state/latest-run.json       마지막 실행 결과 / state/sent-runs.json 발송 이력
 legacy/codex-handoff/       이전 Codex 버전 코드와 인수인계 문서 (참고용)
 ```

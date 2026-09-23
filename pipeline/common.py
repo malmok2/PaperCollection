@@ -11,6 +11,7 @@ CONFIG_PATH = ROOT / "config" / "settings.json"
 DATA_DIR = ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 DB_PATH = DATA_DIR / "literature.sqlite"
+DUMP_PATH = DATA_DIR / "literature.sql"  # text form kept in git; the .sqlite is rebuilt from it
 TRANSLATIONS_PATH = DATA_DIR / "translations_ko.json"
 STATE_DIR = ROOT / "state"
 OUTPUT_DIR = ROOT / "outputs"

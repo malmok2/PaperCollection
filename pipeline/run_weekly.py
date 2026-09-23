@@ -101,6 +101,7 @@ def main():
         database.sync_titles(con, translate.load_cache())
         integrity = database.validate(con)
         result = build_outputs(con, period)
+        database.dump(con)
         con.close()
         if result["current"] == 0:
             raise RuntimeError(f"no papers found for {period.start}~{period.end}; Crossref may be delayed. Not sending an empty digest.")

@@ -2,7 +2,7 @@
 import sqlite3
 from datetime import datetime
 
-from .common import DB_PATH, SETTINGS, document_type, strip_markup, topics_for
+from .common import DB_PATH, DUMP_PATH, SETTINGS, document_type, strip_markup, topics_for
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS papers (
@@ -68,6 +68,10 @@ SOURCE_NOTE = "Crossref DOI created date; weekly window; OpenAlex countries/abst
 
 def connect(path=DB_PATH):
     path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.exists() and DUMP_PATH.exists():
+        restore = sqlite3.connect(path)
+        restore.executescript(DUMP_PATH.read_text(encoding="utf-8"))
+        restore.close()
     con = sqlite3.connect(path)
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA foreign_keys=ON")
@@ -206,3 +210,8 @@ def sync_titles(con, cache):
         for doi, entry in cache.items():
             if entry.get("ko"):
                 con.execute("UPDATE papers SET title_ko=? WHERE doi=? AND IFNULL(title_ko,'')<>?", (entry["ko"], doi, entry["ko"]))
+
+
+def dump(con):
+    """Write the DB as SQL text. Git stores only the changed lines each week instead of a new binary copy."""
+    DUMP_PATH.write_text("\n".join(con.iterdump()) + "\n", encoding="utf-8")

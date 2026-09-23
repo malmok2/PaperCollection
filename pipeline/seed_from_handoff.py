@@ -38,6 +38,7 @@ def main():
 
     cache = {p["doi"]: {"ko": p["title_ko"], "engine": "mymemory"} for p in export["papers"] if p.get("title_ko")}
     write_json(TRANSLATIONS_PATH, dict(sorted(cache.items())))
+    database.dump(con)
     con.close()
 
 
