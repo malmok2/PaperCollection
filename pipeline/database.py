@@ -104,8 +104,11 @@ def set_topics(con, doi, record):
     return areas[0]
 
 
-def upsert_run(con, period, records):
-    """Insert/update one week's records. Returns (found, new)."""
+def upsert_run(con, period, records, additive=False):
+    """Insert/update one week's records. Returns (found, new).
+
+    additive=True adds to an existing run's counts instead of replacing them (backfilling a newly added journal).
+    """
     run_id = period.run_id
     now = datetime.now().isoformat(timespec="seconds")
     before = con.execute("SELECT COUNT(*) FROM papers").fetchone()[0]
@@ -152,10 +155,16 @@ def upsert_run(con, period, records):
             con.execute("INSERT OR IGNORE INTO paper_runs(doi,run_id) VALUES(?,?)", (doi, run_id))
         after = con.execute("SELECT COUNT(*) FROM papers").fetchone()[0]
         new = after - before
-        con.execute(
-            "UPDATE collection_runs SET found_count=?,new_count=?,updated_count=?,error_count=0 WHERE run_id=?",
-            (len(records), new, len(records) - new, run_id),
-        )
+        if additive:
+            con.execute(
+                "UPDATE collection_runs SET found_count=found_count+?,new_count=new_count+?,updated_count=updated_count+? WHERE run_id=?",
+                (len(records), new, len(records) - new, run_id),
+            )
+        else:
+            con.execute(
+                "UPDATE collection_runs SET found_count=?,new_count=?,updated_count=?,error_count=0 WHERE run_id=?",
+                (len(records), new, len(records) - new, run_id),
+            )
     return len(records), new
 
 

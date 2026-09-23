@@ -91,7 +91,7 @@ details p{margin:.5rem 0 0;line-height:1.9;color:var(--color-neutral-700);max-wi
     )
     return f"""<!doctype html>
 <html lang="ko"><head>
-{site_theme.head("원자력공학 문헌 누적 데이터베이스 · THINKLAB", "원자력공학 주요 5개 저널 누적 논문 데이터베이스 — 검색, 필터, 주간 추세", css)}
+{site_theme.head("원자력공학 문헌 누적 데이터베이스 · THINKLAB", f"원자력공학 주요 {len(SETTINGS['journals'])}개 저널 누적 논문 데이터베이스 — 검색, 필터, 주간 추세", css)}
 </head><body>
 {site_theme.site_header("database")}
 {site_theme.page_header("Literature Database", "원자력공학 문헌 누적 데이터베이스",

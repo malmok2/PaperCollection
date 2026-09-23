@@ -114,10 +114,13 @@ def elsevier_core(doi):
     return (payload or {}).get("full-text-retrieval-response", {}).get("coredata", {})
 
 
-def collect(period: Period):
-    start, end = period.start.isoformat(), period.end.isoformat()
+def collect(period: Period, journals=None, start=None, end=None):
+    """journals: subset of SETTINGS["journals"] names (default all). start/end override the period window."""
+    start, end = start or period.start.isoformat(), end or period.end.isoformat()
     records = {}
     for journal, issn in SETTINGS["journals"].items():
+        if journals and journal not in journals:
+            continue
         for item in crossref_items(issn, start, end):
             registered = (item.get("created") or {}).get("date-time", "")[:10]
             doi = (item.get("DOI") or "").lower()

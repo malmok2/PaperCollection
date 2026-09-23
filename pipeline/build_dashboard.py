@@ -311,12 +311,12 @@ def render(period, records, previous_records, cumulative_records, run_count, nav
     </svg>
     <p class="chart-note">점 하나는 논문 한 편입니다. 가까울수록 제목에 등장하는 용어가 유사하며, 점을 가리키면 한글 제목을 확인하고 클릭하면 DOI로 이동합니다.</p>'''
 
-    head_html = site_theme.head(f"원자력공학 최근 논문 동향 · {RUN_DATE}", f"{PERIOD_START}~{PERIOD_END} 원자력공학 주요 5개 저널 신규 논문 동향 (THINKLAB)", site_theme.DASHBOARD_CSS)
+    head_html = site_theme.head(f"원자력공학 최근 논문 동향 · {RUN_DATE}", f"{PERIOD_START}~{PERIOD_END} 원자력공학 주요 {len(SETTINGS['journals'])}개 저널 신규 논문 동향 (THINKLAB)", site_theme.DASHBOARD_CSS)
     header_html = site_theme.site_header("index", nav_prefix)
     page_head_html = site_theme.page_header(
         f"Weekly Literature Watch · {RUN_DATE}",
         "원자력공학 최근 논문 동향",
-        f"<b>{PERIOD_START} ~ {PERIOD_END}</b> DOI 신규 등록 논문 {len(records)}편 · 5개 원자력공학 종합 저널. "
+        f"<b>{PERIOD_START} ~ {PERIOD_END}</b> DOI 신규 등록 논문 {len(records)}편 · {len(SETTINGS['journals'])}개 원자력공학 저널. "
         f"동향 지표 일부는 누적 {len(cumulative_records)}편({run_count}회 수집)을 함께 씁니다.",
     )
     stats_html = (

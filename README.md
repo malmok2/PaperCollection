@@ -1,6 +1,6 @@
 # 원자력공학 문헌 주간 다이제스트
 
-매주 원자력공학 주요 5개 저널의 신규 논문을 수집해 **누적 DB → 대화형 대시보드 → Excel → 요약 메일**을 자동 생성합니다.
+매주 원자력공학 주요 저널(`config/settings.json`의 `journals`, 현재 6개)의 신규 논문을 수집해 **누적 DB → 대화형 대시보드 → Excel → 요약 메일**을 자동 생성합니다.
 ChatGPT/Codex에서 운영하던 시스템(`legacy/codex-handoff/`)을 GitHub Actions 기반으로 이전한 버전입니다.
 
 ## 1. 동작 방식
@@ -72,7 +72,7 @@ python -m pipeline.send_email --test                  # 한글 인코딩 테스�
 
 | 키 | 내용 |
 |---|---|
-| `journals` | 수집 저널명: ISSN |
+| `journals` | 수집 저널명: ISSN. 새 저널을 추가하면 다음 실행 때 기존 수집 기간 전체를 그 저널에 대해 자동 소급 수집 |
 | `topics` | 1차 연구 영역 분류 키워드 규칙 (제목+초록, 앞 순서가 우선) |
 | `watchlists` | 연구실 관심 분야 추적기 키워드 |
 | `translation_glossary` | 번역 용어집 (Claude 번역 시 적용) |

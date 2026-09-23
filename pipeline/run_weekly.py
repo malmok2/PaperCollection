@@ -17,10 +17,11 @@ from zoneinfo import ZoneInfo
 import shutil
 
 from . import build_dashboard, build_database_page, build_email, build_excel, collect, database, send_email, translate
-from .common import OUTPUT_DIR, SETTINGS, SITE_DIR, STATE_DIR, Period, raw_path, write_json
+from .common import OUTPUT_DIR, SETTINGS, SITE_DIR, STATE_DIR, Period, raw_path, read_json, write_json
 
 KST = ZoneInfo("Asia/Seoul")
 STATUS_PATH = STATE_DIR / "latest-run.json"
+JOURNALS_PATH = STATE_DIR / "journals-covered.json"
 
 
 def log(event, **fields):
@@ -47,6 +48,27 @@ def collect_week(con, period):
     found, new = database.upsert_run(con, period, records)
     log("collected", run_id=period.run_id, start=period.start, end=period.end, found=found, new=new, translation=stats)
     return found
+
+
+def backfill_new_journals(con):
+    """A journal added to config/settings.json is collected for every period already in the DB,
+    so weekly trends never compare weeks with different journal sets."""
+    covered = read_json(JOURNALS_PATH, None)
+    configured = list(SETTINGS["journals"])
+    if covered is None:  # first run with this feature: everything configured so far is complete
+        write_json(JOURNALS_PATH, configured)
+        return
+    new = [name for name in configured if name not in covered]
+    if not new:
+        return
+    runs = con.execute("SELECT run_id, period_start, period_end FROM collection_runs ORDER BY run_id").fetchall()
+    for run in runs:
+        period = Period(date.fromisoformat(run["run_id"]))
+        records = collect.collect(period, journals=new, start=run["period_start"], end=run["period_end"])
+        translate.translate_records(records)
+        found, added = database.upsert_run(con, period, records, additive=True)
+        log("journal-backfill", run_id=run["run_id"], journals=new, found=found, new=added)
+    write_json(JOURNALS_PATH, covered + new)
 
 
 def build_outputs(con, period):
@@ -89,6 +111,7 @@ def main():
     try:
         con = database.connect()
         if not args.skip_collect:
+            backfill_new_journals(con)
             for week in weeks_to_collect(con, period, args.max_backfill):
                 collect_week(con, week)
             log("enriched", **collect.enrich_recent(con, since=period.start - timedelta(weeks=11)))
