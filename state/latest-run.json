@@ -2,7 +2,7 @@
   "run_date": "2026-09-14",
   "period_start": "2026-09-07",
   "period_end": "2026-09-13",
-  "started_at": "2026-09-23T09:54:21+09:00",
+  "started_at": "2026-09-23T09:59:18+09:00",
   "status": "success",
   "article_count": 55,
   "previous_count": 52,
@@ -16,5 +16,5 @@
   "dashboard_url": "",
   "email_path": "outputs/email-2026-09-14.html",
   "excel_path": "outputs/nuclear-literature-database.xlsx",
-  "finished_at": "2026-09-23T09:54:21+09:00"
+  "finished_at": "2026-09-23T09:59:18+09:00"
 }
