@@ -1,20 +1,20 @@
 {
-  "run_date": "2026-10-19",
-  "period_start": "2026-10-12",
-  "period_end": "2026-10-18",
-  "started_at": "2026-10-19T08:55:37+09:00",
+  "run_date": "2026-10-26",
+  "period_start": "2026-10-19",
+  "period_end": "2026-10-25",
+  "started_at": "2026-10-26T08:49:59+09:00",
   "status": "success",
-  "article_count": 63,
-  "previous_count": 67,
-  "total_papers": 688,
-  "total_runs": 9,
+  "article_count": 57,
+  "previous_count": 63,
+  "total_papers": 745,
+  "total_runs": 10,
   "integrity": "ok",
   "email": "skipped: SMTP_USER/SMTP_PASSWORD not configured",
   "recipients": [
     "hysms@hanyang.ac.kr"
   ],
   "dashboard_url": "https://malmok2.github.io/PaperCollection/",
-  "email_path": "outputs/email-2026-10-19.html",
+  "email_path": "outputs/email-2026-10-26.html",
   "excel_path": "outputs/nuclear-literature-database.xlsx",
-  "finished_at": "2026-10-19T08:58:04+09:00"
+  "finished_at": "2026-10-26T08:52:21+09:00"
 }
