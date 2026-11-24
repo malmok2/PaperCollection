@@ -23,9 +23,11 @@
     "publisher_url": "https://doi.org/10.1016/j.pnucene.2026.106718",
     "pii": "",
     "cover_date": "",
-    "countries": [],
-    "primary_country": "",
-    "country_source": "OpenAlex: country unavailable",
+    "countries": [
+      "CN"
+    ],
+    "primary_country": "CN",
+    "country_source": "OpenAlex authorship institutions",
     "open_access": false,
     "title_ko": "원자력 열전 에너지 변환을 위한 이중층 미니채널 플레이트 열교환기의 열유동 모델링"
   },
@@ -51,10 +53,13 @@
     "publisher_url": "https://doi.org/10.1016/j.nucengdes.2026.115348",
     "pii": "",
     "cover_date": "",
-    "countries": [],
-    "primary_country": "",
-    "country_source": "OpenAlex: country unavailable",
-    "open_access": false,
+    "countries": [
+      "CN",
+      "US"
+    ],
+    "primary_country": "CN",
+    "country_source": "OpenAlex authorship institutions",
+    "open_access": true,
     "title_ko": "흑연 감속 채널형 용융염 원자로에서 순환 교란에 대한 열유동 및 지연 중성자 전구체 수송 반응"
   },
   {
@@ -77,15 +82,17 @@
     "published_online": "",
     "published_print": "2027-01",
     "issued": "2027-01",
-    "abstract": "",
-    "abstract_source": "",
+    "abstract": "In Japan, safety goals and risk-informed regulation (RIR) have been discussed for decades as approaches to improving the transparency, coherence, and consistency of nuclear regulation. Although probabilistic risk assessment (PRA) was introduced in the 1990s and draft safety goals were proposed in the early 2000s, safety goals have not been institutionalized, and the practical application of RIR remains limited. This study examines the structural impediments that have hindered the institutionalization of safety goals and the increased use of RIR in Japan. Based on a literature review, the historical development of safety goals, PRA, and risk-informed applications in Japanese nuclear regulation is summarized. The impediments are then analyzed from four perspectives: legal and institutional, technical, economic, and cultural. Legally, the regulatory framework does not clearly specify how safety goals should be related to the licensing criterion of ensuring “not hinder the prevention of disasters” under the Reactor Regulation Act, limiting their use in regulatory decisions. Technically, the long-standing limitation of PRA applications, particularly regarding external events, together with challenges in the treatment of uncertainty, has reduced the acceptability of PRA as a basis for regulatory judgments. Economically, weak incentives for sustained investment in PRA have constrained progress. As a cultural impediment, a tendency to preserve the Safety Myth has fostered a cautious attitude toward the quantification and disclosure of accident risks, further constraining progress. This study concludes that the interaction of these factors has formed a vicious circle, impeding the institutionalization of safety goals and the increased use of RIR in Japan.",
+    "abstract_source": "OpenAlex",
     "publisher_url": "https://doi.org/10.1016/j.nucengdes.2026.115316",
     "pii": "",
     "cover_date": "",
-    "countries": [],
-    "primary_country": "",
-    "country_source": "OpenAlex: country unavailable",
-    "open_access": false,
+    "countries": [
+      "JP"
+    ],
+    "primary_country": "JP",
+    "country_source": "OpenAlex authorship institutions",
+    "open_access": true,
     "title_ko": "일본의 안전 목표 및 위험 정보를 반영한 규제에 대한 구조적 장애물"
   },
   {
@@ -103,15 +110,19 @@
     "published_online": "",
     "published_print": "2027-01",
     "issued": "2027-01",
-    "abstract": "",
-    "abstract_source": "",
+    "abstract": "Lead-cooled Fast Reactors (LFR) have been identified as one of the six promising reactor types for the future of nuclear energy by the Generation IV International Forum. Worldwide, there is an important interest in the use of heavy liquid metals, lead or alloys of lead, as coolants due to their favorable thermal and neutronic characteristics. The development of LFR opens exciting opportunities for innovation in design and brings new challenges in licensing for deployment and commercial operation. This special issue presents papers in the area of Lead Fast Reactor technology, focusing on engineering and design aspects within the scope of the journal. A total of 20 research articles were published about: (a) Numerical modelling and extensive use of Computational Fluid Dynamics (CFD) for the analysis and design of LFR; (b) Adaptation and coupling of best estimate codes for the analysis and design of LFR; (c) Experimental facilities that enable, first and foremost, the acquisition of experimental data and the generation of benchmark-type applications, which are fundamental in the validation of numerical codes; (d) Expansion strategies in nuclear energy generation with light water reactors and small modular reactors (case Netherlands); (e) Development of upscaled numerical models to simulate the behavior of neutron and thermohydraulic processes at the reactor scale (case Mexico); (f) Safety of compact lead-cooled pool fast reactors in seismic events; g) Multiphase phenomena for evaluating Steam Generator Tube Rupture (SGTR) risks in Lead-cooled Fast Reactors; h) Analysis of pool thermal-hydraulic phenomena in heavy-liquid metal systems, combining experimental research with numerical simulations.",
+    "abstract_source": "OpenAlex",
     "publisher_url": "https://doi.org/10.1016/j.nucengdes.2026.115342",
     "pii": "",
     "cover_date": "",
-    "countries": [],
-    "primary_country": "",
-    "country_source": "OpenAlex: country unavailable",
-    "open_access": false,
+    "countries": [
+      "MX",
+      "NL",
+      "BE"
+    ],
+    "primary_country": "MX",
+    "country_source": "OpenAlex authorship institutions",
+    "open_access": true,
     "title_ko": "납 냉각 고속로에 대한 원자로 물리학 및 열유체역학 분석"
   },
   {
@@ -136,9 +147,11 @@
     "publisher_url": "https://doi.org/10.1016/j.nucengdes.2026.115344",
     "pii": "",
     "cover_date": "",
-    "countries": [],
-    "primary_country": "",
-    "country_source": "OpenAlex: country unavailable",
+    "countries": [
+      "CN"
+    ],
+    "primary_country": "CN",
+    "country_source": "OpenAlex authorship institutions",
     "open_access": false,
     "title_ko": "HPR1000 격납용기의 열전달 테스트 및 온도장 예측 모델"
   },
@@ -168,9 +181,11 @@
     "publisher_url": "https://doi.org/10.1016/j.anucene.2026.113046",
     "pii": "",
     "cover_date": "",
-    "countries": [],
-    "primary_country": "",
-    "country_source": "OpenAlex: country unavailable",
+    "countries": [
+      "CN"
+    ],
+    "primary_country": "CN",
+    "country_source": "OpenAlex authorship institutions",
     "open_access": false,
     "title_ko": "기울기 특징 구성 및 하이브리드 데이터 세트 최적화를 사용한 원자력 사고에서 I-131의 소스항 역산"
   },
@@ -193,10 +208,12 @@
     "publisher_url": "https://doi.org/10.1016/j.anucene.2026.113055",
     "pii": "",
     "cover_date": "",
-    "countries": [],
-    "primary_country": "",
-    "country_source": "OpenAlex: country unavailable",
-    "open_access": false,
+    "countries": [
+      "CN"
+    ],
+    "primary_country": "CN",
+    "country_source": "OpenAlex authorship institutions",
+    "open_access": true,
     "title_ko": "원자력 발전소 배기 가스 시스템에서 사용된 활성탄의 현장 열-진공 재생: 파일럿 규모 검증 및 산업적 시연"
   },
   {
@@ -221,10 +238,12 @@
     "publisher_url": "https://doi.org/10.1016/j.anucene.2026.113053",
     "pii": "",
     "cover_date": "",
-    "countries": [],
-    "primary_country": "",
-    "country_source": "OpenAlex: country unavailable",
-    "open_access": false,
+    "countries": [
+      "CN"
+    ],
+    "primary_country": "CN",
+    "country_source": "OpenAlex authorship institutions",
+    "open_access": true,
     "title_ko": "DMC-GAN: 빠른 노심 출구 온도장 예측 및 핫스팟 식별을 위한 이중 모드 보정 GAN 기반 대리 모델"
   },
   {
@@ -248,9 +267,11 @@
     "publisher_url": "https://doi.org/10.1016/j.anucene.2026.113042",
     "pii": "",
     "cover_date": "",
-    "countries": [],
-    "primary_country": "",
-    "country_source": "OpenAlex: country unavailable",
+    "countries": [
+      "CN"
+    ],
+    "primary_country": "CN",
+    "country_source": "OpenAlex authorship institutions",
     "open_access": false,
     "title_ko": "감손 및 방사선원 계산을 위한 연속 에너지 핵분열 생성물 재구성"
   },
@@ -646,7 +667,7 @@
   {
     "journal": "Nuclear Engineering and Technology",
     "issn": "1738-5733",
-    "title": "Robust Identification of Unseen Radionuclide Mixtures Using Compact Structured Representations",
+    "title": "Robust identification of unseen radionuclide mixtures using compact structured representations",
     "authors": [
       "Kazem Abdolpour",
       "S. Farhad Masoudi",
@@ -656,8 +677,8 @@
     "doi_url": "https://doi.org/10.1016/j.net.2026.104873",
     "registered_date": "2026-11-20",
     "published_online": "",
-    "published_print": "2026-11",
-    "issued": "2026-11",
+    "published_print": "2027-04",
+    "issued": "2027-04",
     "abstract": "Identifying previously unseen combinations of known radionuclides in low-resolution gamma-ray spectrometry remains challenging under spectral degradation and varying acquisition conditions. This study evaluates three multi-label architectures—1D-CNN, AE+MLP, and Hilbert-AE+MLP—for radionuclide-mixture identification under controlled spectral perturbations and domain shifts. A dataset of 4,158 MCNP6-simulated spectra, covering six radionuclides and all 63 non-empty compositions, was generated using a 2″ × 2″ NaI(Tl) detector model. Composition-level partitioning and six-fold cross-validation were used to assess generalization to previously unseen compositions. Under ideal conditions, the F1-scores were 0.984 ± 0.033, 0.998 ± 0.005, and 0.997 ± 0.006 for 1D-CNN, AE+MLP, and Hilbert-AE+MLP, respectively. Under spectral perturbations, Hilbert-AE+MLP showed consistent performance across the tested gain-displacement and resolution-degradation conditions, achieving an F1-score of 0.889 ± 0.003 under 12.0% resolution degradation and ±15% gain displacement without retraining. On strictly unseen experimental compositions, it achieved precision, recall, and F1-score of 1.00, while its mean per-isotope F1-score on strictly unseen short-time compositions was 0.690 ± 0.009. Controlled comparisons and locality analysis indicate that the observed robustness is associated with structured preservation of local spectral neighborhoods in the Hilbert representation.",
     "abstract_source": "OpenAlex",
     "publisher_url": "https://doi.org/10.1016/j.net.2026.104873",
@@ -963,11 +984,9 @@
     "publisher_url": "https://doi.org/10.1016/j.anucene.2026.113013",
     "pii": "",
     "cover_date": "",
-    "countries": [
-      "CN"
-    ],
-    "primary_country": "CN",
-    "country_source": "OpenAlex authorship institutions",
+    "countries": [],
+    "primary_country": "",
+    "country_source": "OpenAlex: country unavailable",
     "open_access": false,
     "title_ko": "설계 외 조건에서 해수 순환 펌프의 유동 유발 진동 메커니즘에 대한 연구"
   },
@@ -1151,7 +1170,7 @@
   {
     "journal": "Nuclear Engineering and Technology",
     "issn": "1738-5733",
-    "title": "Modeling the Separation of Silicon Isotopes in Square Cascades: Impact of Material Losses and Light Gas Production",
+    "title": "Modeling the separation of silicon isotopes in square cascades: Impact of material losses and light gas production",
     "authors": [
       "Fatemeh Mansourzadeh",
       "Mohammad Mahdi Shadman"
@@ -1160,8 +1179,8 @@
     "doi_url": "https://doi.org/10.1016/j.net.2026.104868",
     "registered_date": "2026-11-19",
     "published_online": "",
-    "published_print": "2026-11",
-    "issued": "2026-11",
+    "published_print": "2027-04",
+    "issued": "2027-04",
     "abstract": "This study investigates isotopic separation and concentration distributions within a square cascade to assess the effects of material losses and light HF gas generation. A computational model was developed for this analysis, focusing on four key parameters in cascades with 50 and 25 stages: stage feed rate, P/F ratio, cascade feed, and unit separation factor, specifically for the SiF4 isotope mixture. The results reveal that the cascade feed rate, stage feed rate, and P/F ratio significantly influence the HF concentration in the light product at the final stage, particularly under conditions of high material losses. Notably, all HF gas is directed towards the end of the cascade, leading to a sudden increase in concentration in the light product at the final stage. Furthermore, the extent of material losses and the accumulation of HF gas in the last stage increase with the number of stages in the cascade. As the material loss coefficient rises, the isotopic separation of the target isotope in longer cascades diminishes compared to shorter ones. Additionally, increased material losses result in a reduced depletion of the light isotope at the end of the heavy product, contributing to a greater overall loss of the target isotope.",
     "abstract_source": "OpenAlex",
     "publisher_url": "https://doi.org/10.1016/j.net.2026.104868",
